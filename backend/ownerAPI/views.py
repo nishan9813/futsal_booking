@@ -6,10 +6,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import serializers 
+from .models import OwnerProfile, Ground
+from .serializers import OwnerProfileSerializer, GroundSerializer  
 
-
-from .models import OwnerProfile
-from .serializers import OwnerProfileSerializer
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -164,3 +164,57 @@ def all_grounds(request):
         owners_list.append(owner_data)
 
     return Response({"owners": owners_list})
+
+
+class GroundListCreateView(generics.ListCreateAPIView):
+    """
+    API view to list all grounds and create a new ground.
+
+    - GET: Lists all grounds. This can be accessed by any user.
+    - POST: Creates a new ground. Only an authenticated owner can create a ground.
+            The ground will be automatically linked to the logged-in owner's profile.
+    """
+    queryset = Ground.objects.all()
+    serializer_class = GroundSerializer
+
+    # Permission is set to IsAuthenticated for creating, but you can adjust
+    # this for listing grounds if you want to allow anonymous access.
+    # To enforce that only owners can create, you might need a custom permission class.
+    # For now, we'll rely on the perform_create method to handle the owner check.
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """
+        Custom method to handle object creation.
+        It automatically links the new ground to the logged-in owner's profile.
+        """
+        # Ensure the user is an owner before allowing ground creation
+        if not hasattr(self.request.user, 'owner_profile'):
+            raise serializers.ValidationError("Only owners can create grounds.")
+
+        owner_profile = self.request.user.owner_profile
+        serializer.save(owner=owner_profile)
+
+
+class GroundRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API view to retrieve, update, or delete a single ground.
+
+    - GET: Retrieve a single ground by ID.
+    - PUT/PATCH: Update a single ground.
+    - DELETE: Delete a single ground.
+    
+    Permissions are set to ensure only the owner of the ground can modify or delete it.
+    """
+    queryset = Ground.objects.all()
+    serializer_class = GroundSerializer
+    permission_classes = [IsAuthenticated]  # Or a custom permission class
+
+    def get_queryset(self):
+        """
+        Ensure users can only update or delete their own grounds.
+        """
+        user = self.request.user
+        if user.is_owner:
+            return Ground.objects.filter(owner__user=user)
+        return Ground.objects.none() # Non-owners cannot access this view
