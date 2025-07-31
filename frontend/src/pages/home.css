@@ -1,0 +1,66 @@
+/* Container styling */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  min-height: 80vh;
+  color: #fff;
+}
+
+/* Title styling */
+.home-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Description styling */
+.home-description {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+/* Primary button */
+.btn.primary-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #1d3557;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn.primary-btn:hover {
+  background-color: #457b9d;
+}
+
+/* Login prompt for non-logged-in users */
+.login-prompt {
+  font-size: 1rem;
+}
+
+.login-link {
+  color: #a8dadc;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* Loading text */
+.loading-text {
+  text-align: center;
+  margin-top: 50px;
+  color: #ffffffcc;
+  font-size: 1.2rem;
+}

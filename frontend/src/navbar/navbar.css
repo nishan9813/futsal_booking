@@ -1,0 +1,92 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #0d1b2a;
+  color: white;
+  padding: 10px 20px;
+  height: 60px;
+  position: relative;
+}
+
+/* Left Section */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.profile-pic {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-placeholder {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #3a506b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+}
+
+.welcome-text {
+  font-size: 14px;
+}
+
+.role-tag {
+  font-size: 12px;
+  color: #adb5bd;
+}
+
+/* Center logo */
+.navbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+/* Right Section */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.nav-link,
+.logout-btn,
+.special-btn {
+  color: white;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover,
+.special-btn:hover {
+  background-color: #1b263b;
+}
+
+.logout-btn {
+  background-color: #e63946;
+}
+
+.logout-btn:hover {
+  background-color: #d62828;
+}
