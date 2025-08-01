@@ -8,23 +8,14 @@ function Navbar() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // Helper to get CSRF token from cookies (optional)
-  const getCsrfToken = () => {
-    return document.cookie
-      .split('; ')
-      .find(row => row.startsWith('csrftoken='))
-      ?.split('=')[1];
-  };
+  // Default fallback image URL (adjust to your backend URL and path)
+  const DEFAULT_PROFILE_PIC_URL = 'http://127.0.0.1:8000/media/defaults/pfp.png';
 
   useEffect(() => {
     setLoading(true);
 
-    // Fetch CSRF token first (if your backend requires it)
     axios.get('/api/csrf/', { withCredentials: true })
-      .then(() => 
-        // Then fetch current user, sending cookies withCredentials
-        axios.get('/api/current_user/', { withCredentials: true })
-      )
+      .then(() => axios.get('/api/current_user/', { withCredentials: true }))
       .then(res => {
         setUser(res.data.user || null);
       })
@@ -39,17 +30,19 @@ function Navbar() {
   const displayName = user?.role === 'owner' ? user.futsal_name : user?.username;
   const initial = displayName ? displayName.charAt(0).toUpperCase() : '';
 
+  // Use profile_pic_url if available, else fallback to default
+  const profileImage = user?.profile_pic_url || DEFAULT_PROFILE_PIC_URL;
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        {user?.profile_pic ? (
+        {user ? (
           <img
-            src={user.profile_pic}
+            src={profileImage}
             alt={`${displayName} profile`}
             className="profile-pic"
+            onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_PROFILE_PIC_URL; }} // fallback if broken
           />
-        ) : user ? (
-          <div className="profile-placeholder">{initial}</div>
         ) : null}
         {user && (
           <span className="welcome-text">

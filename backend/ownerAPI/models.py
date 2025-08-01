@@ -14,6 +14,7 @@ class OwnerProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='owner_profile')
     futsal_name = models.CharField(max_length=255)
     location = models.CharField(max_length=255, blank=True, null=True)
+    # profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.futsal_name} (Owner: {self.user.username})"

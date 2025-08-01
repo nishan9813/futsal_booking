@@ -10,6 +10,7 @@ import Logout from './authenticated/logout';
 import Home from './pages/home';
 import Navbar from './navbar/navbar';
 import Grounds from './pages/grounds/ground';
+import BookingForm from './pages/booking/booking';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/logout' element={<Logout />} />
           <Route path='/grounds' element={<Grounds />} />
+          <Route path='/book/:id' element={<BookingForm />} />
+
 
         </Routes>
       </div>

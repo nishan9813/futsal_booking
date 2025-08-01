@@ -1,33 +1,78 @@
-body {
-  background-color: #000; /* entire page background black */
-  color: #fff;            /* text white */
-  margin: 0;
-  font-family: Arial, sans-serif;
+:root {
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --primary-color: #008080;
+  --text-color: #333;
+  --muted-text: #555;
+  --border-radius: 12px;
 }
 
 .grounds-container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 30px;
   padding: 20px;
+  align-items: center;
 }
 
 .ground-card {
-  width: 300px;
-  background: #111;        /* darker black for card */
-  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  width: 90%;
+  max-width: 420px;
+  min-height: 480px;
+  background-color: #ffffff;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ground-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.ground-name {
+  margin: 0 0 16px;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1.6rem;
+  color: var(--text-color);
+}
+
+.ground-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
   border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
 }
 
-.ground-info h3 {
-  margin-top: 0;
-  color: #00ffcc; /* optional accent color */
+.ground-details {
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--muted-text);
 }
 
-.ground-info p {
+.ground-details p {
   margin: 8px 0;
-  font-size: 14px;
+}
+
+.nav-link {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #006666;
 }

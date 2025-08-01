@@ -5,7 +5,7 @@ from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import serializers 
 from .models import OwnerProfile, Ground
 from .serializers import OwnerProfileSerializer, GroundSerializer  
@@ -21,7 +21,12 @@ User = get_user_model()
 class RegisterOwnerView(generics.CreateAPIView):
     serializer_class = OwnerProfileSerializer
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]  # Add JSONParser here
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
 # class RegisterOwnerView(generics.CreateAPIView):
 #     # queryset = OwnerProfile.objects.all()
@@ -148,7 +153,7 @@ def all_grounds(request):
                 "closing_time": ground.closing_time.strftime("%H:%M"),
                 "price": ground.price,
                 "available_time_slots": ground.available_time_slots,
-                # "image_count": ground.image_count(),
+                "image_count": ground.image_count,
                 "images": [img.image.url for img in ground.ground_images.all()]
             })
 

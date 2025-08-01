@@ -33,6 +33,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
 
 
+
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model

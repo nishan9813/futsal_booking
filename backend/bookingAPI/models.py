@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from userAPI.models import CustomUser
-from ownerAPI.models import OwnerProfile
+from ownerAPI.models import Ground
 import datetime
 
 class Booking(models.Model):
@@ -12,14 +12,14 @@ class Booking(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bookings')
-    ground = models.ForeignKey(OwnerProfile, on_delete=models.CASCADE, related_name='bookings')
+    ground = models.ForeignKey(Ground, on_delete=models.CASCADE, related_name='bookings')
     booking_date = models.DateField()
     time_slot = models.CharField(max_length=20)  # Format: "HH:MM - HH:MM"
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='booked')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Booking for {self.ground.futsal_name} on {self.booking_date} at {self.time_slot} by {self.user.username}"
+        return f"Booking for {self.ground.ground_type} on {self.booking_date} at {self.time_slot} by {self.user.username}"
 
     def clean(self):
         # Prevent past date booking

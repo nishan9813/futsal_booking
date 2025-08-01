@@ -15,6 +15,7 @@ const initialGround = {
   opening_time: '05:00',
   closing_time: '22:00',
   price: '',
+  ground_images:[]
 };
 
 const RegisterPage = () => {
@@ -48,10 +49,16 @@ const RegisterPage = () => {
     location: '',
     grounds: [{ ...initialGround }],
   });
+  function handleGroundImageChange(e, index) {
+    const file = e.target.files[0];
+    const updatedGrounds = [...ownerForm.grounds];
+    updatedGrounds[index].ground_image = file;
+    setOwnerForm({ ...ownerForm, grounds: updatedGrounds });
+  }
 
   useEffect(() => {
     // Fetch CSRF token once on mount
-    axios.get('csrf/', { withCredentials: true }).catch(console.error);
+    axios.get('/api/csrf/', { withCredentials: true }).catch(console.error);
   }, []);
 
   // Handle user form change
@@ -155,6 +162,117 @@ const RegisterPage = () => {
     }
   };
 
+
+
+
+
+
+//   const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   setMessage('');
+
+//   const csrfToken = getCsrfToken();
+//   if (!csrfToken) {
+//     setMessage('❌ CSRF token missing. Please refresh the page.');
+//     return;
+//   }
+
+//   if (role === 'user') {
+//     if (!validatePasswords(userForm.password, userForm.confirm_password)) {
+//       setMessage('❌ Password and Confirm Password do not match');
+//       return;
+//     }
+
+//     try {
+//       await axios.post('api/register/', userForm, {
+//         headers: { 'X-CSRFToken': csrfToken },
+//         withCredentials: true,
+//       });
+
+//       await axios.post('/api/login/', {
+//         username: userForm.username,
+//         password: userForm.password,
+//       }, {
+//         headers: { 'X-CSRFToken': csrfToken },
+//         withCredentials: true,
+//       });
+
+//       setMessage('✅ Registration and login successful! Redirecting...');
+//       setTimeout(() => navigate('/'), 1500);
+//     } catch (err) {
+//       const errMsg =
+//         err.response?.data?.detail ||
+//         err.response?.data ||
+//         err.message ||
+//         'Something went wrong';
+//       setMessage('❌ ' + JSON.stringify(errMsg));
+//     }
+
+//   } else if (role === 'owner') {
+//     if (!validatePasswords(ownerForm.user.password, ownerForm.user.confirm_password)) {
+//       setMessage('❌ Password and Confirm Password do not match');
+//       return;
+//     }
+
+//     try {
+//       const formData = new FormData();
+
+//       // Add top-level owner fields
+//       formData.append('futsal_name', ownerForm.futsal_name);
+//       formData.append('location', ownerForm.location);
+
+//       // Add nested user fields
+//       Object.entries(ownerForm.user).forEach(([key, value]) => {
+//         if (key !== 'confirm_password') {
+//           formData.append(`user.${key}`, value);
+//         }
+//       });
+
+//       // Add grounds
+//       ownerForm.grounds.forEach((ground, index) => {
+//         formData.append(`grounds[${index}].ground_type`, ground.ground_type);
+//         formData.append(`grounds[${index}].opening_time`, ground.opening_time);
+//         formData.append(`grounds[${index}].closing_time`, ground.closing_time);
+//         formData.append(`grounds[${index}].price`, ground.price);
+
+//         if (ground.ground_images?.length) {
+//           ground.ground_images.forEach((file) => {
+//             formData.append(`grounds[${index}].ground_images`, file);
+//           });
+//         }
+//       });
+
+//       await axios.post('api/register-owner/', formData, {
+//         headers: {
+//           'X-CSRFToken': csrfToken,
+//           'Content-Type': 'multipart/form-data'
+//         },
+//         withCredentials: true,
+//       });
+
+//       // Auto-login
+//       await axios.post('/api/login/', {
+//         username: ownerForm.user.username,
+//         password: ownerForm.user.password,
+//       }, {
+//         headers: { 'X-CSRFToken': csrfToken },
+//         withCredentials: true,
+//       });
+
+//       setMessage('✅ Owner registered and logged in! Redirecting...');
+//       setTimeout(() => navigate('/'), 1500);
+//     } catch (err) {
+//       const errMsg =
+//         err.response?.data?.detail ||
+//         err.response?.data ||
+//         err.message ||
+//         'Something went wrong';
+//       setMessage('❌ ' + JSON.stringify(errMsg));
+//     }
+//   }
+// };
+
+
   return (
     <div style={{ maxWidth: 600, margin: 'auto' }}>
       <h2>Register as {role === 'user' ? 'User' : 'Owner'}</h2>
@@ -232,7 +350,20 @@ const RegisterPage = () => {
                   onChange={(e) => handleGroundChange(idx, e)}
                   required
                   min="0"
+                  />
+             <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files);
+                    const updatedGrounds = [...ownerForm.grounds];
+                    updatedGrounds[idx].ground_images = files;  // Use ground_images plural, store array
+                    setOwnerForm({ ...ownerForm, grounds: updatedGrounds });
+                  }}
                 />
+
+
                 <button type="button" onClick={() => removeGround(idx)} disabled={ownerForm.grounds.length === 1}>
                   Remove Ground
                 </button>
@@ -252,281 +383,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect } from 'react';
-// import axiosClient from './axiosCredint';
-// import { useNavigate } from 'react-router-dom';
-
-// const RegisterPage = () => {
-//   const navigate = useNavigate();
-//   const [role, setRole] = useState('user');
-//   const [csrfToken, setCsrfToken] = useState('');
-
-//   const initialUser = {
-//     first_name: '',
-//     last_name: '',
-//     username: '',
-//     email: '',
-//     phone: '',
-//     password: '',
-//     confirm_password: '',
-//     profile_pic: null,
-//   };
-
-//   const initialGround = {
-//     ground_type: '',
-//     opening_time: '05:00',
-//     closing_time: '22:00',
-//     price: '',
-//     image: null,
-//   };
-
-//   const [userForm, setUserForm] = useState(initialUser);
-//   const [ownerForm, setOwnerForm] = useState({
-//     user: initialUser,
-//     futsal_name: '',
-//     location: '',
-//     grounds: [initialGround],
-//   });
-
-//   useEffect(() => {
-//     axiosClient.get('/api/csrf/', { withCredentials: true })
-//       .then(res => {
-//         const csrfToken = res.data.csrfToken || res.headers['x-csrftoken'];
-//         setCsrfToken(csrfToken);
-//       });
-//   }, []);
-
-//   const handleUserChange = (e) => {
-//     const { name, value, files } = e.target;
-//     setUserForm(prev => ({
-//       ...prev,
-//       [name]: files ? files[0] : value,
-//     }));
-//   };
-
-//   const handleOwnerUserChange = (e) => {
-//     const { name, value, files } = e.target;
-//     setOwnerForm(prev => ({
-//       ...prev,
-//       user: {
-//         ...prev.user,
-//         [name]: files ? files[0] : value,
-//       },
-//     }));
-//   };
-
-//   const handleGroundChange = (index, e) => {
-//     const { name, value, files } = e.target;
-//     const newGrounds = [...ownerForm.grounds];
-//     newGrounds[index] = {
-//       ...newGrounds[index],
-//       [name]: files ? files[0] : value,
-//     };
-//     setOwnerForm(prev => ({ ...prev, grounds: newGrounds }));
-//   };
-
-//   const addGround = () => {
-//     setOwnerForm(prev => ({
-//       ...prev,
-//       grounds: [...prev.grounds, initialGround],
-//     }));
-//   };
-
-//   const removeGround = (index) => {
-//     const newGrounds = [...ownerForm.grounds];
-//     newGrounds.splice(index, 1);
-//     setOwnerForm(prev => ({
-//       ...prev,
-//       grounds: newGrounds,
-//     }));
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       if (role === 'user') {
-//         const formData = new FormData();
-//         Object.entries(userForm).forEach(([key, value]) => {
-//           formData.append(key, value);
-//         });
-
-//         await axiosClient.post('api/register/', formData, {
-//           headers: {
-//             'X-CSRFToken': csrfToken,
-//             'Content-Type': 'multipart/form-data',
-//           },
-//           withCredentials: true,
-//         });
-//       } else {
-//         const formData = new FormData();
-
-//         // Append nested user fields
-//         Object.entries(ownerForm.user).forEach(([key, value]) => {
-//           formData.append(`user.${key}`, value);
-//         });
-
-//         formData.append('futsal_name', ownerForm.futsal_name);
-//         formData.append('location', ownerForm.location);
-
-//         // Append each ground's data
-//         ownerForm.grounds.forEach((ground, index) => {
-//           Object.entries(ground).forEach(([key, value]) => {
-//             formData.append(`grounds[${index}].${key}`, value);
-//           });
-//         });
-
-//         await axiosClient.post('api/register-owner/', formData, {
-//           headers: {
-//             'X-CSRFToken': csrfToken,
-//             'Content-Type': 'multipart/form-data',
-//           },
-//           withCredentials: true,
-//         });
-//       }
-
-//       navigate('/login');
-//     } catch (error) {
-//       console.error('Registration error:', error.response?.data || error);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h2>{role === 'user' ? 'Register as User' : 'Register as Owner'}</h2>
-//       <button onClick={() => setRole(role === 'user' ? 'owner' : 'user')}>
-//         Switch to {role === 'user' ? 'Owner' : 'User'}
-//       </button>
-//       <form onSubmit={handleSubmit} encType="multipart/form-data">
-//         {role === 'user' ? (
-//           <>
-//             {Object.entries(userForm).map(([key, value]) => (
-//               key !== 'profile_pic' ? (
-//                 <input
-//                   key={key}
-//                   type={key.toLowerCase().includes('password') ? 'password' : 'text'}
-//                   name={key}
-//                   placeholder={key}
-//                   value={value}
-//                   onChange={handleUserChange}
-//                   required
-//                 />
-//               ) : (
-//                 <input
-//                   key={key}
-//                   type="file"
-//                   name={key}
-//                   accept="image/*"
-//                   onChange={handleUserChange}
-//                   required
-//                 />
-//               )
-//             ))}
-//           </>
-//         ) : (
-//           <>
-//             {Object.entries(ownerForm.user).map(([key, value]) => (
-//               key !== 'profile_pic' ? (
-//                 <input
-//                   key={key}
-//                   type={key.toLowerCase().includes('password') ? 'password' : 'text'}
-//                   name={key}
-//                   placeholder={key}
-//                   value={value}
-//                   onChange={handleOwnerUserChange}
-//                   required
-//                 />
-//               ) : (
-//                 <input
-//                   key={key}
-//                   type="file"
-//                   name={key}
-//                   accept="image/*"
-//                   onChange={handleOwnerUserChange}
-//                   required
-//                 />
-//               )
-//             ))}
-//             <input
-//               type="text"
-//               name="futsal_name"
-//               placeholder="Futsal Name"
-//               value={ownerForm.futsal_name}
-//               onChange={(e) => setOwnerForm(prev => ({ ...prev, futsal_name: e.target.value }))}
-//               required
-//             />
-//             <input
-//               type="text"
-//               name="location"
-//               placeholder="Location"
-//               value={ownerForm.location}
-//               onChange={(e) => setOwnerForm(prev => ({ ...prev, location: e.target.value }))}
-//               required
-//             />
-
-//             {ownerForm.grounds.map((ground, idx) => (
-//               <div key={idx}>
-//                 <select
-//                   name="ground_type"
-//                   value={ground.ground_type}
-//                   onChange={(e) => handleGroundChange(idx, e)}
-//                   required
-//                 >
-//                   <option value="">Select Ground Type</option>
-//                   <option value="5A">5-a-side</option>
-//                   <option value="7A">7-a-side</option>
-//                   <option value="MAT">Mat Futsal</option>
-//                   <option value="TURF">Turf</option>
-//                   <option value="WOOD">Wooden Floor</option>
-//                 </select>
-//                 <input
-//                   type="time"
-//                   name="opening_time"
-//                   value={ground.opening_time}
-//                   onChange={(e) => handleGroundChange(idx, e)}
-//                   required
-//                 />
-//                 <input
-//                   type="time"
-//                   name="closing_time"
-//                   value={ground.closing_time}
-//                   onChange={(e) => handleGroundChange(idx, e)}
-//                   required
-//                 />
-//                 <input
-//                   type="number"
-//                   name="price"
-//                   placeholder="Price"
-//                   value={ground.price}
-//                   onChange={(e) => handleGroundChange(idx, e)}
-//                   required
-//                 />
-//                 <input
-//                   type="file"
-//                   name="image"
-//                   accept="image/*"
-//                   onChange={(e) => handleGroundChange(idx, e)}
-//                   required
-//                 />
-//                 <button type="button" onClick={() => removeGround(idx)}>Remove Ground</button>
-//               </div>
-//             ))}
-//             <button type="button" onClick={addGround}>Add Another Ground</button>
-//           </>
-//         )}
-//         <button type="submit">Register as {role === 'user' ? 'User' : 'Owner'}</button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default RegisterPage;
