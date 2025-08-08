@@ -18,55 +18,75 @@ User = get_user_model()
 # -----------------------------------------------------------
 # Owner Registration View
 # -----------------------------------------------------------
+# class RegisterOwnerView(generics.CreateAPIView):
+#     serializer_class = OwnerProfileSerializer
+#     permission_classes = [AllowAny]
+#     parser_classes = [MultiPartParser, FormParser, JSONParser]  # Add JSONParser here
+
+#     def get_serializer_context(self):
+#         context = super().get_serializer_context()
+#         context.update({"request": self.request})
+#         return context
+
+from rest_framework import generics, status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from .models import OwnerProfile
+from .serializers import OwnerProfileSerializer
+
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.response import Response
+from .serializers import OwnerProfileSerializer
+from .models import OwnerProfile
+import json
+
+
 class RegisterOwnerView(generics.CreateAPIView):
     serializer_class = OwnerProfileSerializer
-    permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]  # Add JSONParser here
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
 
-# class RegisterOwnerView(generics.CreateAPIView):
-#     # queryset = OwnerProfile.objects.all()
-#     serializer_class = OwnerProfileSerializer
-#     permission_classes = [AllowAny]
-#     parser_classes = [MultiPartParser, FormParser]
+    def create(self, request, *args, **kwargs):
+        user = request.user
+
+        if not user.is_customer or user.is_owner:
+            return Response(
+                {"detail": "You are not allowed to register as an owner."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if OwnerProfile.objects.filter(user=user).exists():
+            return Response(
+                {"detail": "Owner profile already exists for this user."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check if 'data' JSON string present (our frontend will send JSON string in 'data')
+        if 'data' in request.data:
+            try:
+                data = json.loads(request.data['data'])
+            except json.JSONDecodeError:
+                return Response({"detail": "Invalid JSON in 'data' field."}, status=400)
+
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        return super().create(request, *args, **kwargs)
 
 
-# # -----------------------------------------------------------
-# # Current Logged-in Owner Profile
-# # -----------------------------------------------------------
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def current_owner(request):
-#     user = request.user
 
-#     if not getattr(user, 'is_owner', False):
-#         return Response(
-#             {"detail": "You are not authorized as an owner."},
-#             status=status.HTTP_403_FORBIDDEN
-#         )
-
-#     owner_profile = getattr(user, 'owner_profile', None)
-#     if not owner_profile:
-#         return Response(
-#             {"detail": "Owner profile not found."},
-#             status=status.HTTP_404_NOT_FOUND
-#         )
-
-#     return Response({
-#         "user": {
-#             "id": user.id,
-#             "username": user.username,
-#             "email": user.email,
-#             "futsal_name": owner_profile.futsal_name,
-#             "location": owner_profile.location,
-#             "ground_type": owner_profile.ground_type,
-#             "slots": owner_profile.available_time_slots,
-#         }
-#     })
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -136,7 +156,7 @@ from rest_framework.response import Response
 from .models import OwnerProfile
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])  # Adjust permissions as needed
+@permission_classes([AllowAny])  # Allow unauthenticated access
 def all_grounds(request):
     # Fetch all owner profiles, prefetch related grounds and ground images for efficiency
     owners = OwnerProfile.objects.select_related('user').prefetch_related('grounds__ground_images').all()
@@ -153,7 +173,7 @@ def all_grounds(request):
                 "closing_time": ground.closing_time.strftime("%H:%M"),
                 "price": ground.price,
                 "available_time_slots": ground.available_time_slots,
-                "image_count": ground.image_count,
+                # "image_count": ground.image_count,
                 "images": [img.image.url for img in ground.ground_images.all()]
             })
 
@@ -223,3 +243,46 @@ class GroundRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if user.is_owner:
             return Ground.objects.filter(owner__user=user)
         return Ground.objects.none() # Non-owners cannot access this view
+    
+
+
+
+
+
+
+
+
+# from rest_framework import viewsets, permissions
+# from rest_framework.exceptions import PermissionDenied
+# from .models import GroundPricing
+# # from .serializers import GroundPricingSerializer
+
+# class GroundPricingViewSet(viewsets.ModelViewSet):
+#     queryset = GroundPricing.objects.all()
+#     serializer_class = GroundPricingSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         user = self.request.user
+#         # Only allow owners to see their own ground pricing rules
+#         return GroundPricing.objects.filter(ground__owner__user=user)
+
+#     def perform_create(self, serializer):
+#         user = self.request.user
+#         ground = serializer.validated_data['ground']
+#         if ground.owner.user != user:
+#             raise PermissionDenied("You don't own this ground.")
+#         serializer.save()
+
+#     def perform_update(self, serializer):
+#         user = self.request.user
+#         ground = serializer.validated_data.get('ground', serializer.instance.ground)
+#         if ground.owner.user != user:
+#             raise PermissionDenied("You don't own this ground.")
+#         serializer.save()
+
+#     def perform_destroy(self, instance):
+#         user = self.request.user
+#         if instance.ground.owner.user != user:
+#             raise PermissionDenied("You don't own this ground.")
+#         instance.delete()

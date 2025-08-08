@@ -34,7 +34,7 @@ def ground_time_slots(request, ground_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def booked_time_slots(request):
     ground_id = request.query_params.get('ground')
     date = request.query_params.get('date')
@@ -46,3 +46,27 @@ def booked_time_slots(request):
     booked_slots = bookings.values_list('time_slot', flat=True)
 
     return Response(list(booked_slots))
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_booking_history(request):
+    bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
+    serializer = BookingSerializer(bookings, many=True)
+    return Response(serializer.data)
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def owner_booking_history(request):
+    # Get all bookings for grounds owned by the current owner
+    if hasattr(request.user, 'owner'):  # if custom owner model is linked
+        owner = request.user.owner
+        grounds = owner.grounds.all()  # related_name="grounds" from Owner to Ground
+        bookings = Booking.objects.filter(ground__in=grounds).order_by('-booking_date')
+        serializer = BookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+    return Response({'detail': 'Not an owner'}, status=403)

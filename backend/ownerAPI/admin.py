@@ -1,11 +1,14 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import OwnerProfile, GroundImage, Ground
+from .models import OwnerProfile, Ground, GroundImage
+
+@admin.register(GroundImage)
+class GroundImageAdmin(admin.ModelAdmin):
+    list_display = ('ground', 'image', 'uploaded_at')
+    list_filter = ('ground',)
+    search_fields = ('ground__ground_type',)
 
 admin.site.register(OwnerProfile)
-admin.site.register(GroundImage)
-admin.site.register(Ground)
 
-
-
-
+@admin.register(Ground)
+class GroundAdmin(admin.ModelAdmin):
+    list_display = ('ground_type', 'owner', 'price')

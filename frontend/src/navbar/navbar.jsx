@@ -14,10 +14,12 @@ function Navbar() {
   useEffect(() => {
     setLoading(true);
 
-    axios.get('/api/csrf/', { withCredentials: true })
-      .then(() => axios.get('/api/current_user/', { withCredentials: true }))
+    // Use the correct API endpoints - use relative paths for consistency
+    axios.get('http://127.0.0.1:8000/api/csrf/', { withCredentials: true })
+      .then(() => axios.get('http://127.0.0.1:8000/api/current_user/', { withCredentials: true }))
       .then(res => {
-        setUser(res.data.user || null);
+        // The backend returns the user data directly in res.data
+        setUser(res.data || null);
       })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
@@ -30,19 +32,21 @@ function Navbar() {
   const displayName = user?.role === 'owner' ? user.futsal_name : user?.username;
   const initial = displayName ? displayName.charAt(0).toUpperCase() : '';
 
-  // Use profile_pic_url if available, else fallback to default
-  const profileImage = user?.profile_pic_url || DEFAULT_PROFILE_PIC_URL;
+  // Use profile_pic field from backend, else fallback to default
+  const profileImage = user?.profile_pic || DEFAULT_PROFILE_PIC_URL;
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
         {user ? (
-          <img
-            src={profileImage}
-            alt={`${displayName} profile`}
-            className="profile-pic"
-            onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_PROFILE_PIC_URL; }} // fallback if broken
-          />
+          <Link to={`/userEdit/${user.id}`} className="profile-link">
+            <img
+              src={profileImage}
+              alt={`${displayName} profile`}
+              className="profile-pic"
+              onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_PROFILE_PIC_URL; }}
+            />
+          </Link>
         ) : null}
         {user && (
           <span className="welcome-text">
@@ -66,6 +70,10 @@ function Navbar() {
 
             {user.role === 'admin' && (
               <Link to="/admin" className="nav-link special-btn">Admin Panel</Link>
+            )}
+
+            {(user.role === 'user' || user.role === 'owner') && (
+              <Link to="/register-owner" className="nav-link special-btn">Register a Ground</Link>
             )}
 
             <Link to="/logout" className="logout-btn">Logout</Link>

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "location_field",
     'corsheaders',
     'rest_framework',
     'userAPI',  # Use this AppConfig here!
@@ -152,24 +153,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # AUTH_USER_MODEL = 'userAPI.User'  
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+
 ]
 
 
 CORS_ALLOW_CREDENTIALS = True
 
 # Trust Vite dev server for CSRF protection
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']  # adjust ports as needed
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173',"http://127.0.0.1:5173",]  # adjust ports as needed
 
 # STATICFILES_DIRS = [BASE_DIR / "../frontend/dist"] 
 
 AUTH_USER_MODEL = 'userAPI.CustomUser'
 
-SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = False
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [ '127.0.0.1', 'localhost']
 
 
 
@@ -179,6 +182,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # This is needed for authenticate() to work
-]
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',  # This is needed for authenticate() to work
+# ]

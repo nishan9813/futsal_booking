@@ -12,7 +12,7 @@ class Booking(models.Model):
     ]
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bookings')
-    ground = models.ForeignKey(Ground, on_delete=models.CASCADE, related_name='bookings')
+    ground = models.ForeignKey(Ground, on_delete=models.CASCADE)
     booking_date = models.DateField()
     time_slot = models.CharField(max_length=20)  # Format: "HH:MM - HH:MM"
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='booked')

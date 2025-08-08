@@ -3,17 +3,15 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Grounds.css";
 
+const BACKEND_URL = "http://127.0.0.1:8000";
+
 const Grounds = () => {
   const [grounds, setGrounds] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
-      .get("/api/grounds/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      })
+      .get("/api/grounds/")
       .then((response) => {
         const allGrounds = [];
         response.data.owners.forEach((owner) => {
@@ -38,6 +36,14 @@ const Grounds = () => {
 
   if (loading) return <p>Loading...</p>;
 
+  // Helper to get full image URL
+  const getFullImageUrl = (imgUrl) => {
+    if (!imgUrl) return "/placeholder.jpg";
+    if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://")) return imgUrl;
+    if (imgUrl.startsWith("/media")) return BACKEND_URL + imgUrl;
+    return imgUrl; // fallback if something unexpected
+  };
+
   return (
     <div className="grounds-container">
       {grounds.length === 0 ? (
@@ -48,8 +54,8 @@ const Grounds = () => {
             <h3 className="ground-name">{ground.futsal_name}</h3>
 
             <img
-              src={ground.images?.[0] || "/placeholder.jpg"}
-              alt="Ground"
+              src={ground.images && ground.images.length > 0 ? getFullImageUrl(ground.images[0]) : "/placeholder.jpg"}
+              alt={`${ground.futsal_name} ground`}
               className="ground-img"
               onError={(e) => {
                 e.target.onerror = null;
@@ -67,10 +73,7 @@ const Grounds = () => {
               <p>
                 <strong>Price:</strong> Rs. {ground.price}
               </p>
-              <Link
-                to={`/book/${ground.id}`}
-                className="nav-link"
-              >
+              <Link to={`/book/${ground.id}`} className="nav-link">
                 Book
               </Link>
             </div>

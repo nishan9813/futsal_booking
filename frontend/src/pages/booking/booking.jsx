@@ -1,14 +1,199 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import './Booking.css'; // Assume styles are in this file
+
+// function getCookie(name) {
+//   let cookieValue = null;
+//   if (document.cookie && document.cookie !== '') {
+//     const cookies = document.cookie.split(';');
+//     for (let cookie of cookies) {
+//       cookie = cookie.trim();
+//       if (cookie.startsWith(name + '=')) {
+//         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+//         break;
+//       }
+//     }
+//   }
+//   return cookieValue;
+// }
+
+// export default function BookingForm() {
+//   const [grounds, setGrounds] = useState([]);
+//   const [selectedGroundId, setSelectedGroundId] = useState('');
+//   const [availableSlots, setAvailableSlots] = useState([]);
+//   const [selectedSlot, setSelectedSlot] = useState('');
+//   const [bookingDate, setBookingDate] = useState('');
+//   const [bookedSlots, setBookedSlots] = useState([]);
+//   const [message, setMessage] = useState('');
+
+//   useEffect(() => {
+//     const today = new Date().toISOString().split('T')[0];
+//     setBookingDate(today);
+//   }, []);
+
+//   useEffect(() => {
+//     const fetchGrounds = async () => {
+//       try {
+//         const res = await axios.get('/api/grounds/');
+//         if (res.data && res.data.owners) {
+//           const allGrounds = res.data.owners.flatMap(owner => owner.grounds || []);
+//           setGrounds(allGrounds);
+//         } else {
+//           setGrounds([]);
+//         }
+//       } catch (error) {
+//         console.error('Failed to fetch grounds:', error);
+//         setMessage('Failed to load grounds.');
+//       }
+//     };
+
+//     fetchGrounds();
+//   }, []);
+
+//   useEffect(() => {
+//     const fetchSlots = async () => {
+//       if (!selectedGroundId || !bookingDate) return;
+//       try {
+//         const res = await axios.get(`/api/bookings/?ground=${selectedGroundId}&booking_date=${bookingDate}`);
+//         setBookedSlots(res.data.booked_slots || []);
+//       } catch (error) {
+//         console.error('Failed to fetch booked slots:', error);
+//         setBookedSlots([]);
+//       }
+//     };
+
+//     const ground = grounds.find(g => g.id === Number(selectedGroundId));
+//     if (ground) {
+//       setAvailableSlots(ground.available_time_slots || []);
+//     }
+
+//     fetchSlots();
+//   }, [selectedGroundId, bookingDate, grounds]);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!selectedGroundId || !bookingDate || !selectedSlot) {
+//       setMessage('Please select ground, date, and time slot.');
+//       return;
+//     }
+
+//     try {
+//       const csrftoken = getCookie('csrftoken');
+//       const payload = {
+//         ground: selectedGroundId,
+//         booking_date: bookingDate,
+//         time_slot: selectedSlot,
+//       };
+
+//       await axios.post('/api/bookings/', payload, {
+//         headers: {
+//           'X-CSRFToken': csrftoken,
+//           'Content-Type': 'application/json',
+//         },
+//       });
+
+//       setMessage('Booking successful!');
+//       setSelectedSlot('');
+//     } catch (error) {
+//       console.error('Booking failed:', error);
+//       if (error.response && error.response.data) {
+//         setMessage('Booking failed: ' + JSON.stringify(error.response.data));
+//       } else {
+//         setMessage('Booking failed. Please try again.');
+//       }
+//     }
+//   };
+
+//   const isTimeSlotPast = (slot) => {
+//     if (!bookingDate) return false;
+//     const [startTime] = slot.split(' - ');
+//     const slotDateTime = new Date(`${bookingDate}T${startTime}:00`);
+//     const now = new Date();
+//     return slotDateTime < now;
+//   };
+
+//   const isBooked = (slot) => bookedSlots.includes(slot);
+
+//   const getSlotClass = (slot) => {
+//     if (isTimeSlotPast(slot)) return 'slot past';
+//     if (isBooked(slot)) return 'slot booked';
+//     if (selectedSlot === slot) return 'slot selected';
+//     return 'slot free';
+//   };
+
+//   return (
+//     <div className="booking-wrapper">
+//       <h2>Book Your Ground Slot</h2>
+//       <form onSubmit={handleSubmit}>
+//         <label>
+//           Select Ground:
+//           <select value={selectedGroundId} onChange={e => setSelectedGroundId(e.target.value)} required>
+//             <option value="">-- Choose Ground --</option>
+//             {grounds.map(g => (
+//               <option key={g.id} value={g.id}>{g.ground_type}</option>
+//             ))}
+//           </select>
+//         </label>
+
+//         <label>
+//           Select Date:
+//           <input
+//             type="date"
+//             value={bookingDate}
+//             onChange={e => setBookingDate(e.target.value)}
+//             min={new Date().toISOString().split('T')[0]}
+//             required
+//           />
+//         </label>
+
+//         <div className="slots-grid">
+//           {availableSlots.map((slot, idx) => (
+//             <button
+//               type="button"
+//               key={idx}
+//               className={getSlotClass(slot)}
+//               onClick={() => !isTimeSlotPast(slot) && !isBooked(slot) && setSelectedSlot(slot)}
+//               disabled={isTimeSlotPast(slot) || isBooked(slot)}
+//             >
+//               {slot}
+//             </button>
+//           ))}
+//         </div>
+
+//         <button type="submit" disabled={!selectedSlot} className="submit-btn">
+//           Confirm Booking
+//         </button>
+
+//         {message && <p className="message">{message}</p>}
+//       </form>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import './Booking.css';
+import './Booking.css'; // Import your CSS file
 
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
-    for (let c of cookies) {
-      const cookie = c.trim();
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
       if (cookie.startsWith(name + '=')) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -18,153 +203,175 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const BookingForm = () => {
-  const { id: groundId } = useParams();
-  const [timeSlots, setTimeSlots] = useState([]);
+export default function BookingForm() {
+  const [grounds, setGrounds] = useState([]);
+  const [selectedGroundId, setSelectedGroundId] = useState('');
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
   const [bookedSlots, setBookedSlots] = useState([]);
-  const [groundName, setGroundName] = useState('');
-  const [futsalName, setFutsalName] = useState('');
-  const [formData, setFormData] = useState({
-    booking_date: '',
-    time_slot: '',
-  });
+  const [message, setMessage] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
 
-  // Fetch ground info including futsal name and available time slots
+  // Set today's date by default
   useEffect(() => {
-    axios.get('/api/grounds/')
-      .then(response => {
-        const owners = response.data.owners || [];
-        const allGrounds = owners.flatMap(owner => owner.grounds);
-        const ground = allGrounds.find(g => String(g.id) === groundId);
+    const today = new Date().toISOString().split('T')[0];
+    setBookingDate(today);
+  }, []);
 
-        if (ground) {
-          setGroundName(ground.ground_type || 'Ground');
-          setTimeSlots(ground.available_time_slots || []);
-          setFutsalName(ground.futsal_name || ''); // Get futsal name from ground data
+  // Fetch grounds
+  useEffect(() => {
+    const fetchGrounds = async () => {
+      try {
+        const res = await axios.get('/api/grounds/');
+        if (res.data?.owners) {
+          const allGrounds = res.data.owners.flatMap(owner => owner.grounds || []);
+          setGrounds(allGrounds);
         } else {
-          setGroundName('Ground not found');
-          setTimeSlots([]);
-          setFutsalName('');
+          setGrounds([]);
         }
-      })
-      .catch(error => {
-        console.error('Error fetching ground details:', error);
-        setGroundName('Error loading ground');
-        setTimeSlots([]);
-        setFutsalName('');
-      });
-  }, [groundId]);
-
-  // Fetch booked slots for selected date and ground
-  useEffect(() => {
-    if (!groundId || !formData.booking_date) return;
-
-    axios.get('/api/booking/', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      } catch (err) {
+        setMessage('Error loading grounds.');
+        setShowMessage(true);
+        autoHideMessage();
       }
-    })
-      .then(response => {
-        const filtered = response.data.filter(b =>
-          String(b.ground) === String(groundId) &&
-          b.booking_date === formData.booking_date
-        );
-        const booked = filtered.map(b => b.time_slot);
-        setBookedSlots(booked);
-      })
-      .catch(err => {
-        console.error('Error fetching bookings:', err);
-        setBookedSlots([]);
-      });
-  }, [groundId, formData.booking_date]);
+    };
+    fetchGrounds();
+  }, []);
 
-  const handleChange = e => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // Fetch slots when ground or date changes
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (!selectedGroundId || !bookingDate) return;
+
+      try {
+        const res = await axios.get(`/api/booked-slots/?ground=${selectedGroundId}&date=${bookingDate}`);
+        setBookedSlots(res.data || []);
+      } catch (err) {
+        console.error('Error fetching booked slots:', err);
+        setBookedSlots([]);
+      }
+
+      const ground = grounds.find(g => g.id === parseInt(selectedGroundId));
+      setAvailableSlots(ground?.available_time_slots || []);
+    };
+
+    fetchSlots();
+  }, [selectedGroundId, bookingDate, grounds]);
+
+  const autoHideMessage = () => {
+    setTimeout(() => setShowMessage(false), 3000);
   };
 
-  const handleSlotClick = slot => {
-    if (!bookedSlots.includes(slot)) {
-      setFormData(prev => ({ ...prev, time_slot: slot }));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedGroundId || !bookingDate || !selectedSlot) {
+      setMessage('Please select ground, date, and time slot.');
+      setShowMessage(true);
+      autoHideMessage();
+      return;
+    }
+
+    try {
+      const csrftoken = getCookie('csrftoken');
+      const payload = {
+        ground: selectedGroundId,
+        booking_date: bookingDate,
+        time_slot: selectedSlot,
+      };
+
+      await axios.post('/api/bookings/', payload, {
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      setMessage('Booking successful!');
+      setShowMessage(true);
+      setSelectedSlot('');
+
+      const res = await axios.get(`/api/booked-slots/?ground=${selectedGroundId}&date=${bookingDate}`);
+      setBookedSlots(res.data || []);
+      autoHideMessage();
+    } catch (err) {
+      const errMsg = err.response?.data
+        ? `Booking failed: ${JSON.stringify(err.response.data)}`
+        : 'Booking failed. Please try again.';
+      setMessage(errMsg);
+      setShowMessage(true);
+      autoHideMessage();
     }
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    const csrftoken = getCookie('csrftoken');
+  const isTimeSlotPast = (slot) => {
+    if (!bookingDate) return false;
+    const [startTime] = slot.split('-').map(s => s.trim());
+    const slotDateTime = new Date(`${bookingDate}T${startTime}:00`);
+    return slotDateTime < new Date();
+  };
 
-    axios.post('/api/booking/', {
-      ...formData,
-      ground: groundId,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'X-CSRFToken': csrftoken,
-      },
-      withCredentials: true,
-    })
-      .then(() => {
-        alert('Booking successful!');
-        setFormData({ booking_date: '', time_slot: '' });
-        setBookedSlots([]);
-      })
-      .catch(error => {
-        alert('Booking failed.');
-        console.error(error.response?.data || error);
-      });
+  const getSlotClass = (slot) => {
+    if (isTimeSlotPast(slot)) return 'slot past';
+    if (bookedSlots.includes(slot)) return 'slot booked';
+    if (selectedSlot === slot) return 'slot selected';
+    return 'slot free';
   };
 
   return (
-    <form className="booking-form" onSubmit={handleSubmit}>
-      {/* Display futsal name and ground name */}
-      <h1 className="futsal-title">{futsalName}</h1>
-      <h2>Book "{groundName}"</h2>
+    <div className="booking-wrapper">
+      <h2>Book Your Ground Slot</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Select Ground:
+          <select value={selectedGroundId} onChange={e => setSelectedGroundId(e.target.value)} required>
+            <option value="">-- Choose Ground --</option>
+            {grounds.map(g => (
+              <option key={g.id} value={g.id}>{g.ground_type}</option>
+            ))}
+          </select>
+        </label>
 
-      <label htmlFor="booking_date">Booking Date:</label>
-      <input
-        type="date"
-        id="booking_date"
-        name="booking_date"
-        value={formData.booking_date}
-        onChange={handleChange}
-        required
-        min={new Date().toISOString().split('T')[0]}
-      />
+        <label>
+          Select Date:
+          <input
+            type="date"
+            value={bookingDate}
+            onChange={e => setBookingDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            required
+          />
+        </label>
 
-      {formData.booking_date && (
-        <>
-          <label>Select Time Slot:</label>
-          <div className="slot-grid">
-            {timeSlots.map(slot => {
-              const isBooked = bookedSlots.includes(slot);
-              const isSelected = formData.time_slot === slot;
-              return (
-                <div
-                  key={slot}
-                  className={`slot ${isBooked ? 'booked' : isSelected ? 'selected' : 'available'}`}
-                  onClick={() => handleSlotClick(slot)}
-                >
-                  {slot}
-                </div>
-              );
-            })}
-          </div>
+        <div className="slots-grid">
+          {availableSlots.map((slot, i) => (
+            <button
+              key={i}
+              type="button"
+              className={getSlotClass(slot)}
+              onClick={() => {
+                if (!isTimeSlotPast(slot) && !bookedSlots.includes(slot)) {
+                  setSelectedSlot(slot);
+                }
+              }}
+              disabled={isTimeSlotPast(slot) || bookedSlots.includes(slot)}
+            >
+              {slot}
+            </button>
+          ))}
+        </div>
 
-          <div className="legend">
-            <span className="legend-box available"></span> Available
-            <span className="legend-box booked"></span> Booked
-            <span className="legend-box selected"></span> Selected
-          </div>
-        </>
-      )}
+        <button type="submit" className="submit-btn" disabled={!selectedSlot}>
+          Confirm Booking
+        </button>
 
-      <button type="submit" disabled={!formData.booking_date || !formData.time_slot}>
-        Book
-      </button>
-    </form>
+        {showMessage && (
+          <p className={`message ${message.includes('successful') ? 'message-success' : 'message-error'}`}>
+            {message}
+          </p>
+        )}
+      </form>
+    </div>
   );
-};
-
-export default BookingForm;
+}

@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-// Create a custom axios instance with default settings
 const axiosClient = axios.create({
-baseURL: 'http://localhost:8000', // adjust to your Django backend URL
-withCredentials: true,         // send cookies on every request
-xsrfCookieName: 'csrftoken',   // name of cookie to read CSRF token from
-xsrfHeaderName: 'X-CSRFToken', // header to send CSRF token with
+  baseURL: 'http://127.0.0.1:8000',
+  // baseURL: 'http://localhost:8000', // Django backend URL
+ // Django backend URL
+  withCredentials: true,            // send cookies along with requests
+  xsrfCookieName: 'csrftoken',      // cookie name Django sets by default
+  xsrfHeaderName: 'X-CSRFToken',    // header axios sends with CSRF token
 });
 
 export default axiosClient;
