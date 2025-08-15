@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'userAPI',  # Use this AppConfig here!
     'ownerAPI',
-    'bookingAPI'
+    'bookingAPI',
+    'rest_framework_simplejwt.token_blacklist',
+
 ]
 
 MIDDLEWARE = [
@@ -77,13 +79,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
 
 
 
@@ -168,11 +170,13 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:5173',"http://127.0.0.1:5173",]  # adj
 
 AUTH_USER_MODEL = 'userAPI.CustomUser'
 
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = None
 CSRF_COOKIE_SECURE = False
 ALLOWED_HOSTS = [ '127.0.0.1', 'localhost']
+
+
 
 
 
@@ -182,6 +186,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'django.contrib.auth.backends.ModelBackend',  # This is needed for authenticate() to work
-# ]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # This is needed for authenticate() to work
+]

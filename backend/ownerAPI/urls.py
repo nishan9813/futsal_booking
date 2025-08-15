@@ -1,9 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterOwnerView, list_owners_admins_and_customers, all_grounds, GroundListCreateView, GroundRetrieveUpdateDestroyView
+from .views import (
+    RegisterOwnerView,
+    list_owners_admins_and_customers,
+    all_grounds,
+    GroundListCreateView,
+    GroundRetrieveUpdateDestroyView,
+    OwnerGroundViewSet,
+    GroundImageUploadView,
+    GroundImageDeleteView
+)
 
 router = DefaultRouter()
-# router.register(r'ground-pricing', GroundPricingViewSet, basename='ground-pricing')
+router.register(r'ownerground', OwnerGroundViewSet, basename='owner-grounds')
 
 urlpatterns = [
     path('register-owner/', RegisterOwnerView.as_view(), name='register-owner'),
@@ -11,6 +20,8 @@ urlpatterns = [
     path('grounds/', all_grounds, name='grounds'),
     path('grounds_test/', GroundListCreateView.as_view(), name='ground-list-create'),
     path('grounds_test/<int:pk>/', GroundRetrieveUpdateDestroyView.as_view(), name='ground-detail'),
+    path('ground/<int:ground_id>/upload-image/', GroundImageUploadView.as_view(), name='ground-image-upload'),
+    path('ground/<int:ground_id>/delete-image/<int:image_id>/', GroundImageDeleteView.as_view(), name='ground-image-delete'),
 
-    path('', include(router.urls)),  # Include all viewset routes here
+    path('', include(router.urls)),  # Now OwnerGroundViewSet is included here
 ]

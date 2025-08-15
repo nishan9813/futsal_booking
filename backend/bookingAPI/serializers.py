@@ -1,39 +1,44 @@
-
-from django.utils import timezone
 from rest_framework import serializers
 from .models import Booking
 from ownerAPI.models import Ground
 import datetime
 
 class BookingSerializer(serializers.ModelSerializer):
+    # Automatically assign current user from JWT-authenticated request
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    customer_username = serializers.CharField(source='user.username', read_only=True)
+    customer_email = serializers.EmailField(source='user.email', read_only=True)
+    customer_phone = serializers.CharField(source='user.phone', read_only=True)  # if your User model has phone
+
+    
+    # time_slot choices will be set dynamically in __init__
     time_slot = serializers.ChoiceField(choices=[], required=True)
-    futsal_name = serializers.CharField(source='ground.owner.futsal_name', read_only=True)  # traverse owner
+    
+    # Read-only field showing futsal name from related ground.owner
+    futsal_name = serializers.CharField(source='ground.owner.futsal_name', read_only=True)
 
     class Meta:
         model = Booking
-        fields = ['id', 'user', 'ground', 'futsal_name', 'booking_date', 'time_slot', 'status', 'created_at']
+        fields = ['id', 'user', 'ground', 'futsal_name', 'booking_date', 'time_slot', 'status', 'created_at', 'customer_username', 'customer_email', 'customer_phone']
         read_only_fields = ['status', 'created_at']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         request = self.context.get('request')
+        
+        # Dynamically set choices for time_slot based on ground's available_time_slots on write operations
         if request and request.method in ['POST', 'PUT', 'PATCH']:
             ground_id = request.data.get('ground')
             if ground_id:
                 try:
                     ground = Ground.objects.get(id=ground_id)
-                    self.fields['time_slot'].choices = [(slot, slot) for slot in ground.available_time_slots]
+                    slots = ground.available_time_slots
+                    self.fields['time_slot'].choices = [(slot, slot) for slot in slots]
                 except Ground.DoesNotExist:
-                    pass
+                    self.fields['time_slot'].choices = []
 
-    def validate(self, data):
-        if data['booking_date'] < datetime.date.today():
+    def validate_booking_date(self, value):
+        # Prevent booking in the past
+        if value < datetime.date.today():
             raise serializers.ValidationError("Booking date cannot be in the past.")
-        return data
-
-
-
-
-
+        return value

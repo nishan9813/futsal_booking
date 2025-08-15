@@ -2,7 +2,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
-import "leaflet/dist/leaflet.css";
 
 
 import Register from './authenticated/register';
@@ -14,9 +13,11 @@ import Navbar from './navbar/navbar';
 import Grounds from './pages/grounds/ground';
 import BookingForm from './pages/booking/booking';
 import OwnerRegister from './authenticated/register_owner';
-import LocationPicker from './location/locationPicker';
-import EditProfile from './user-pages/userUpdate';
-
+import LocationPicker from './location/LocationPicker';
+import UserUpdate from './updatePages/userUpdate';
+import EditGrounds from './updatePages/groundUpdate';
+import OwnerDashboard from './pages/owner/dashboard';
+import AdminPanel from './admin-pages/adminPanal';
 function AppContent() {
   const location = useLocation();
   
@@ -33,11 +34,16 @@ function AppContent() {
           <Route path='/login' element={<Login />} />
           <Route path='/logout' element={<Logout />} />
           <Route path='/grounds' element={<Grounds />} />
-          <Route path='/book/:id' element={<BookingForm />} />
+          <Route path='/book/:ownerId' element={<BookingForm />} />
           <Route path='/register-owner' element={<OwnerRegister />} />
           <Route path="/location-picker" element={<LocationPicker />} />
-          <Route path="/user/:id" element={<user />} />
-          <Route path="/userEdit/:id" element={<EditProfile />} />
+          {/* <Route path="/user/:id" element={<user />} /> */}
+          <Route path="/userEdit/:id" element={<UserUpdate />} />
+          <Route path="/ownerEdit/:id" element={<EditGrounds />} />
+          <Route path="/dashboard/" element={<OwnerDashboard />} />
+          <Route path="/admin-panal/" element={<AdminPanel />} />
+
+
 
 
         </Routes>
@@ -55,3 +61,4 @@ function App() {
 }
 
 export default App;
+

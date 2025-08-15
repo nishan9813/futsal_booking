@@ -31,7 +31,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_owner = models.BooleanField(default= False)
     phone = models.CharField(max_length=15, blank=True)
-    profile_pic = models.ImageField(upload_to = 'profile_pics/', blank=True, null=True, default='defaults/pfp.png')
+    profile_pic = models.ImageField(upload_to = 'profile_pics/', blank=True, null=True, default='profile_pics/default.png')
     is_staff = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)

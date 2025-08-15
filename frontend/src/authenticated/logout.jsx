@@ -1,14 +1,22 @@
-// src/components/Logout.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosClient from './axiosCredint';
 import { useNavigate } from 'react-router-dom';
 
-// Helper to get CSRF token from cookies
-const getCsrfToken = () => {
-  return document.cookie
-    .split('; ')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1];
+const fadeInKeyframes = `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
+// Inject keyframes into a style tag in the document head
+const injectKeyframes = () => {
+  if (!document.getElementById('fadeIn-keyframes')) {
+    const style = document.createElement('style');
+    style.id = 'fadeIn-keyframes';
+    style.innerHTML = fadeInKeyframes;
+    document.head.appendChild(style);
+  }
 };
 
 const Logout = () => {
@@ -16,38 +24,72 @@ const Logout = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    injectKeyframes();
+
     const logoutUser = async () => {
       try {
-        const csrfToken = getCsrfToken();
-        if (!csrfToken) {
-          throw new Error('CSRF token missing. Please refresh the page.');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (!refreshToken) {
+          setMessage('❌ No refresh token found. You are probably logged out.');
+          setTimeout(() => navigate('/login'), 1500);
+          return;
         }
 
-        // Send POST request to logout
-        await axios.post('/api/logout/', {}, {
-          headers: {
-            'X-CSRFToken': csrfToken,
-          },
-          withCredentials: true, // important for sending cookies
-        });
+        await axiosClient.post('/api/logout/', { refresh: refreshToken });
+
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('email');
+        localStorage.removeItem('role');
 
         setMessage('✅ Logged out successfully.');
-        // Optional: redirect to login or homepage
+
         setTimeout(() => navigate('/login'), 1500);
       } catch (err) {
         console.error('Logout failed:', err);
-        const errMsg = err.response?.data || 'Logout failed';
-        setMessage('❌ ' + JSON.stringify(errMsg));
+        const errMsg = err.response?.data?.detail || 'Logout failed';
+        setMessage('❌ ' + errMsg);
       }
     };
 
     logoutUser();
   }, [navigate]);
 
+  const styles = {
+    wrapper: {
+      minHeight: '60vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: '#222',
+      color: '#ddd',
+      fontFamily: "'Poppins', sans-serif",
+      padding: '2rem',
+      borderRadius: '1rem',
+      maxWidth: '400px',
+      margin: '3rem auto',
+      borderTop: '4px solid #27ae60',
+      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.6)',
+      animation: 'fadeIn 0.6s ease forwards',
+    },
+    heading: {
+      color: '#27ae60',
+      marginBottom: '1rem',
+    },
+    message: {
+      fontSize: '1rem',
+      marginTop: '0.5rem',
+      minHeight: '1.2rem',
+    },
+  };
+
   return (
-    <div>
-      <h2>Logging out...</h2>
-      <p>{message}</p>
+    <div style={styles.wrapper}>
+      <h2 style={styles.heading}>Logging out...</h2>
+      <p style={styles.message}>{message}</p>
     </div>
   );
 };

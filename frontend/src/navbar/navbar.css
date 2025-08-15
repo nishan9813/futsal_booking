@@ -1,156 +1,127 @@
+/* Navbar Container */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #1a2a6c, #2a4a8c);
-  color: white;
-  padding: 12px 30px;
-  height: 80px; /* Increased height for visibility */
-  position: relative;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border-bottom: 3px solid #4cc9f0; /* Added obvious border for visibility */
+  background-color: #222;
+  color: #eee;
+  padding: 0.8rem 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  border-bottom: 3px solid #27ae60;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  flex-wrap: wrap;
 }
 
-/* Left Section */
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 20px; /* Increased gap for visibility */
-  flex: 1;
-}
-
-.profile-pic {
-  width: 50px; /* Increased size for visibility */
-  height: 50px; /* Increased size for visibility */
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #4cc9f0; /* Increased border width for visibility */
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.profile-pic:hover {
-  transform: scale(1.1);
-  border-color: #f72585;
-}
-
-.profile-placeholder {
-  width: 50px; /* Increased size for visibility */
-  height: 50px; /* Increased size for visibility */
-  border-radius: 50%;
-  background: linear-gradient(135deg, #4cc9f0, #4361ee);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: white;
-  border: 3px solid #4cc9f0; /* Increased border width for visibility */
-  transition: transform 0.3s ease, background 0.3s ease;
-  font-size: 20px; /* Increased font size for visibility */
-}
-
-.profile-placeholder:hover {
-  transform: scale(1.1);
-  background: linear-gradient(135deg, #f72585, #b5179e);
-}
-
-.welcome-text {
-  font-size: 20px; /* Increased font size for visibility */
-  font-weight: 500;
-  animation: fadeIn 0.5s ease-in;
-}
-
-.role-tag {
-  font-size: 16px; /* Increased font size for visibility */
-  color: #caf0f8;
-  background-color: rgba(76, 201, 240, 0.2);
-  padding: 3px 8px;
-  border-radius: 20px;
-  margin-top: 2px;
-}
-
-/* Center logo */
-.navbar-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.logo {
-  font-size: 30px; /* Increased font size for visibility */
-  font-weight: 800;
-  text-decoration: none;
-  color: white;
-  background: linear-gradient(90deg, #4cc9f0, #f72585);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  transition: transform 0.3s ease;
-}
-
-.logo:hover {
-  transform: scale(1.05);
-}
-
-/* Right Section */
+/* Sections */
+.navbar-left,
+.navbar-center,
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 20px; /* Increased gap for visibility */
-  flex: 1;
-  justify-content: flex-end;
+  gap: 1rem;
 }
 
-.nav-link,
-.logout-btn,
-.special-btn {
-  color: white;
+/* Logo */
+.logo {
+  font-weight: 700;
+  color: #27ae60;
   text-decoration: none;
-  padding: 12px 20px; /* Increased padding for visibility */
-  border-radius: 30px;
-  transition: all 0.3s ease;
+  font-size: 1.3rem;
+}
+
+/* Links */
+.nav-link {
+  color: #ddd;
+  text-decoration: none;
   font-weight: 500;
-  position: relative;
-  overflow: hidden;
-  font-size: 18px; /* Increased font size for visibility */
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
 }
 
-.nav-link::before,
-.special-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: 0.5s;
+.nav-link:hover {
+  background-color: #27ae60;
+  color: #fff;
 }
 
-.nav-link:hover::before,
-.special-btn:hover::before {
-  left: 100%;
+/* Special buttons */
+.special-btn {
+  background-color: #27ae60;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-.nav-link:hover,
 .special-btn:hover {
-  background-color: rgba(76, 201, 240, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #2ecc71;
 }
 
+/* Logout button */
 .logout-btn {
-  background: linear-gradient(135deg, #f72585, #b5179e);
-  box-shadow: 0 4px 10px rgba(247, 37, 133, 0.3);
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-  background: linear-gradient(135deg, #b5179e, #7209b7);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(247, 37, 133, 0.4);
+  background-color: #c0392b;
+}
+/* Profile */
+.profile-pic {
+  width: 60px;        /* increased from 40px */
+  height: 60px;       /* increased from 40px */
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #27ae60;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+.profile-pic-placeholder {
+  width: 60px;        /* increased from 40px */
+  height: 60px;       /* increased from 40px */
+  border-radius: 50%;
+  background-color: #444;
+  border: 2px solid #27ae60;
+}
+
+/* Adjust welcome text alignment with bigger profile pic */
+.welcome-text {
+  color: #ddd;
+  font-size: 1rem;       /* slightly bigger */
+  margin-left: 0.7rem;   /* increased spacing from pic */
+}
+
+
+/* Responsive: stack elements on small screens */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .navbar-center {
+    margin: 0.5rem 0;
+  }
+  .navbar-right {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
+
+
+/* Center the whole app content */
+.app-container {
+  display: flex;
+  flex-direction: column;  /* stack elements vertically */
+  justify-content: center; /* center vertically */
+  align-items: center;     /* center horizontally */
+  min-height: 100vh;       /* full viewport height */
+  padding: 1rem;
+  background-color: #f7f7f7; /* optional light background */
+  box-sizing: border-box;
 }
