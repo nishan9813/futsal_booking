@@ -12,10 +12,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
+
 
 from .models import OwnerProfile, Ground
 from .serializers import OwnerProfileSerializer, GroundSerializer, GroundImageSerializer
 from .models import GroundImage
+import openrouteservice
+from userAPI.serializers import UserLocationSerializer
+
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -150,6 +155,8 @@ def all_grounds(request):
                     "opening_time": ground.opening_time.strftime("%H:%M"),
                     "closing_time": ground.closing_time.strftime("%H:%M"),
                     "price": ground.price,
+                    "address" : owner.address,
+                    "city" : owner.city,
                     "available_time_slots": ground.available_time_slots,
                     "images": [img.image.url for img in ground.ground_images.all()],
                 }
@@ -162,6 +169,7 @@ def all_grounds(request):
                 "futsal_name": owner.futsal_name,
                 "location": owner.location,
                 "grounds": grounds_data,
+
             }
         )
 
@@ -275,3 +283,137 @@ class GroundImageDeleteView(APIView):
         image = get_object_or_404(GroundImage, id=image_id, ground=ground)
         image.delete()
         return Response({"detail": "Image deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+# Replace with your ORS API key
+
+ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjFmY2EwZTY4ZWYwZjQ0MjI4ODkwZjg3MWYzNWQxMDljIiwiaCI6Im11cm11cjY0In0='
+
+# class GroundDistanceView(APIView):
+#     permission_classes = [AllowAny]
+
+#     def calculate_distances(self, user_lat, user_lng, grounds):
+#         client = openrouteservice.Client(key=ORS_API_KEY)
+#         ground_list = []
+
+#         for ground in grounds:
+#             if not ground.owner.location:
+#                 continue
+
+#             owner_lat, owner_lng = map(float, ground.owner.location.split(','))
+
+#             try:
+#                 routes = client.directions(
+#                     coordinates=[[user_lng, user_lat], [owner_lng, owner_lat]],
+#                     profile='driving-car',
+#                     format='json'
+#                 )
+#                 distance_meters = routes['routes'][0]['summary']['distance']
+#             except Exception:
+#                 distance_meters = None
+
+#             ground_list.append({
+#                 'id': ground.id,
+#                 'name': ground.name,
+#                 'futsal_name': ground.owner.futsal_name,
+#                 'location': ground.owner.location,
+#                 'distance_meters': distance_meters
+#             })
+
+#         # Sort by distance (closest first)
+#         return sorted(
+#             [g for g in ground_list if g['distance_meters'] is not None],
+#             key=lambda x: x['distance_meters']
+#         )
+
+#     def post(self, request):
+#         serializer = UserLocationSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user_lat = serializer.validated_data['latitude']
+#             user_lng = serializer.validated_data['longitude']
+#             ground_id = request.data.get('ground_id')
+
+#             grounds = Ground.objects.select_related("owner").all()
+#             if ground_id:
+#                 grounds = grounds.filter(id=ground_id)
+
+#             ground_list = self.calculate_distances(user_lat, user_lng, grounds)
+#             return Response(ground_list, status=status.HTTP_200_OK)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def get(self, request):
+#         user_lat = request.query_params.get('latitude')
+#         user_lng = request.query_params.get('longitude')
+#         ground_id = request.query_params.get('ground_id')
+
+#         if not user_lat or not user_lng:
+#             return Response({"error": "latitude and longitude required"}, status=400)
+
+#         grounds = Ground.objects.select_related("owner").all()
+#         if ground_id:
+#             grounds = grounds.filter(id=ground_id)
+
+#         ground_list = self.calculate_distances(float(user_lat), float(user_lng), grounds)
+#         return Response(ground_list, status=status.HTTP_200_OK)
+
+
+class GroundDistanceView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        user_lat = request.data.get('latitude')
+        user_lng = request.data.get('longitude')
+        ground_id = request.data.get('ground_id')  # optional, can fetch one specific ground
+
+        # Basic validation
+        if user_lat is None or user_lng is None:
+            return Response({"error": "latitude and longitude are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_lat = float(user_lat)
+            user_lng = float(user_lng)
+        except ValueError:
+            return Response({"error": "latitude and longitude must be numbers"}, status=status.HTTP_400_BAD_REQUEST)
+
+        client = openrouteservice.Client(key=ORS_API_KEY)
+
+        # Filter grounds if a specific one is requested
+        if ground_id:
+            grounds = Ground.objects.select_related("owner").filter(id=ground_id)
+        else:
+            grounds = Ground.objects.select_related("owner").all()
+
+        ground_list = []
+
+        for ground in grounds:
+            if not ground.owner.location:
+                continue
+
+            try:
+                owner_lat, owner_lng = map(float, ground.owner.location.split(','))
+                routes = client.directions(
+                    coordinates=[[user_lng, user_lat], [owner_lng, owner_lat]],
+                    profile='driving-car',
+                    format='json'
+                )
+                distance_meters = routes['routes'][0]['summary']['distance']
+            except Exception:
+                distance_meters = None
+
+            ground_list.append({
+                'id': ground.id,
+                'name': ground.name,
+                'futsal_name': ground.owner.futsal_name,
+                'location': ground.owner.location,
+                'distance_meters': distance_meters
+            })
+
+        # Sort by distance if distances exist
+        ground_list = sorted(
+            [g for g in ground_list if g['distance_meters'] is not None],
+            key=lambda x: x['distance_meters']
+        )
+
+        return Response(ground_list, status=status.HTTP_200_OK)

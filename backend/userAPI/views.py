@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework.viewsets import ModelViewSet
+
 
 from .serializers import (
     CustomUserSerializer,

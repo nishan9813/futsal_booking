@@ -1,5 +1,6 @@
 // src/pages/admin/AdminPanel.jsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axiosClient from "../authenticated/axiosCredint";
 
 const EXCLUDED_FIELDS = ["password", "confirm_password"];
@@ -34,7 +35,7 @@ export default function AdminPanel() {
 
     try {
       await axiosClient.delete(`/api/admin-users/${id}/`);
-      fetchUsers(); // refresh list
+      fetchUsers();
       if (selectedUser?.id === id) setSelectedUser(null);
     } catch (err) {
       alert("Failed to delete user");
@@ -51,7 +52,6 @@ export default function AdminPanel() {
       Object.keys(selectedUser).forEach((key) => {
         if (EXCLUDED_FIELDS.includes(key) || key === "id") return;
 
-        // Only append profile_pic if it's a File object (new upload)
         if (key === "profile_pic") {
           if (selectedUser.profile_pic instanceof File) {
             formData.append("profile_pic", selectedUser.profile_pic);
@@ -86,30 +86,38 @@ export default function AdminPanel() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Admin User Management</h2>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Admin User Management</h2>
+        <Link
+          to="/register"
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+        >
+          + Create User
+        </Link>
+      </div>
 
-      {loading && <p>Loading users...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p className="text-gray-500">Loading users...</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
-      <div style={{ display: "flex", gap: "40px" }}>
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* User list */}
-        <div style={{ flex: 1 }}>
-          <h3>User List</h3>
-          <ul>
+        <div className="flex-1 bg-white p-4 rounded shadow">
+          <h3 className="text-lg font-semibold mb-4">User List</h3>
+          <ul className="space-y-2">
             {users.map((user) => (
-              <li key={user.id ?? user.username ?? Math.random()}>
+              <li key={user.id ?? user.username ?? Math.random()} className="flex justify-between items-center">
                 <button
                   onClick={() => setSelectedUser(user)}
-                  style={{
-                    fontWeight: selectedUser?.id === user.id ? "bold" : "normal",
-                  }}
+                  className={`text-left flex-1 ${
+                    selectedUser?.id === user.id ? "font-bold text-blue-600" : "text-gray-700"
+                  }`}
                 >
                   {user.username} ({user.email})
-                </button>{" "}
+                </button>
                 <button
                   onClick={() => deleteUser(user.id)}
-                  style={{ color: "red" }}
+                  className="text-red-600 hover:text-red-800"
                 >
                   Delete
                 </button>
@@ -119,85 +127,94 @@ export default function AdminPanel() {
         </div>
 
         {/* Selected user details */}
-        <div style={{ flex: 1 }}>
+        <div className="flex-1 bg-white p-4 rounded shadow">
           {selectedUser ? (
             <>
-              <h3>Edit User: {selectedUser.username}</h3>
-              <label>
-                First Name:
-                <input
-                  name="first_name"
-                  value={selectedUser.first_name || ""}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <br />
-              <label>
-                Last Name:
-                <input
-                  name="last_name"
-                  value={selectedUser.last_name || ""}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <br />
-              <label>
-                Username:
-                <input
-                  name="username"
-                  value={selectedUser.username || ""}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <br />
-              <label>
-                Email:
-                <input
-                  name="email"
-                  value={selectedUser.email || ""}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <br />
-              <label>
-                Phone:
-                <input
-                  name="phone"
-                  value={selectedUser.phone || ""}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <br />
-              <label>
-                Profile Picture:
-                <input
-                  type="file"
-                  name="profile_pic"
-                  accept="image/*"
-                  onChange={handleInputChange}
-                />
-              </label>
-              {selectedUser.profile_pic && typeof selectedUser.profile_pic === "string" && (
+              <h3 className="text-lg font-semibold mb-4">Edit User: {selectedUser.username}</h3>
+              <div className="space-y-3">
                 <div>
-                  <p>Current Picture:</p>
-                  <img
-                    src={selectedUser.profile_pic}
-                    alt="Profile"
-                    style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                  <label className="block text-gray-700">First Name:</label>
+                  <input
+                    name="first_name"
+                    value={selectedUser.first_name || ""}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 mt-1"
                   />
                 </div>
-              )}
-              <br />
-              <button onClick={updateUser}>Save Changes</button>
-              <button
-                onClick={() => setSelectedUser(null)}
-                style={{ marginLeft: "10px" }}
-              >
-                Cancel
-              </button>
+                <div>
+                  <label className="block text-gray-700">Last Name:</label>
+                  <input
+                    name="last_name"
+                    value={selectedUser.last_name || ""}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Username:</label>
+                  <input
+                    name="username"
+                    value={selectedUser.username || ""}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Email:</label>
+                  <input
+                    name="email"
+                    value={selectedUser.email || ""}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Phone:</label>
+                  <input
+                    name="phone"
+                    value={selectedUser.phone || ""}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Profile Picture:</label>
+                  <input
+                    type="file"
+                    name="profile_pic"
+                    accept="image/*"
+                    onChange={handleInputChange}
+                    className="mt-1"
+                  />
+                  {selectedUser.profile_pic && typeof selectedUser.profile_pic === "string" && (
+                    <div className="mt-2">
+                      <p className="text-gray-600">Current Picture:</p>
+                      <img
+                        src={selectedUser.profile_pic}
+                        alt="Profile"
+                        className="w-20 h-20 object-cover rounded mt-1"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={updateUser}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setSelectedUser(null)}
+                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </>
           ) : (
-            <p>Select a user to edit</p>
+            <p className="text-gray-600">Select a user to edit</p>
           )}
         </div>
       </div>

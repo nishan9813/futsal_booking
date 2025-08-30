@@ -2,30 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axiosClient from './axiosCredint';
 import { useNavigate } from 'react-router-dom';
 
-const fadeInKeyframes = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-`;
-
-// Inject keyframes into a style tag in the document head
-const injectKeyframes = () => {
-  if (!document.getElementById('fadeIn-keyframes')) {
-    const style = document.createElement('style');
-    style.id = 'fadeIn-keyframes';
-    style.innerHTML = fadeInKeyframes;
-    document.head.appendChild(style);
-  }
-};
-
 const Logout = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    injectKeyframes();
-
     const logoutUser = async () => {
       try {
         const refreshToken = localStorage.getItem('refresh_token');
@@ -57,40 +38,12 @@ const Logout = () => {
     logoutUser();
   }, [navigate]);
 
-  const styles = {
-    wrapper: {
-      minHeight: '60vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: '#222',
-      color: '#ddd',
-      fontFamily: "'Poppins', sans-serif",
-      padding: '2rem',
-      borderRadius: '1rem',
-      maxWidth: '400px',
-      margin: '3rem auto',
-      borderTop: '4px solid #27ae60',
-      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.6)',
-      animation: 'fadeIn 0.6s ease forwards',
-    },
-    heading: {
-      color: '#27ae60',
-      marginBottom: '1rem',
-    },
-    message: {
-      fontSize: '1rem',
-      marginTop: '0.5rem',
-      minHeight: '1.2rem',
-    },
-  };
-
   return (
-    <div style={styles.wrapper}>
-      <h2 style={styles.heading}>Logging out...</h2>
-      <p style={styles.message}>{message}</p>
+    <div className="min-h-[60vh] flex flex-col justify-center items-center bg-secondary text-light p-8 rounded-xl max-w-md mx-auto mt-12 border-t-4 border-primary shadow-xl animate-fade-in font-sans">
+      <h2 className="text-primary text-2xl mb-4">Logging out...</h2>
+      <p className="text-base mt-2 min-h-[1.2rem]">{message}</p>
     </div>
+
   );
 };
 

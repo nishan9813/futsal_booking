@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axiosClient from '../authenticated/axiosCredint';
-import './Navbar.css';
+import axiosClient from '../../authenticated/axiosCredint';
 
 function Navbar() {
   const [user, setUser] = useState(null);
@@ -60,43 +59,39 @@ function Navbar() {
   const displayName = user.role === 'owner' ? user.futsal_name : user.username;
 
   return (
-    <nav className="navbar">
-      <div className="navbar-left">
-        <Link to={`/userEdit/${user.id}`} className="profile-link">
+    <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+      <div className="flex items-center space-x-4">
+        <Link to={`/userEdit/${user?.id}`} className="flex items-center space-x-2">
           {profileImage ? (
-            <img src={profileImage} alt={`${displayName} profile`} className="profile-pic" />
+            <img src={profileImage} alt="Profile" className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500" />
           ) : (
-            <div className="profile-pic-placeholder" />
+            <div className="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center text-white font-bold">U</div>
           )}
+          <span className="text-gray-800 font-medium">Welcome, <strong>{displayName}</strong></span>
         </Link>
-        <span className="welcome-text">
-          Welcome, <strong>{displayName}</strong>
-        </span>
       </div>
 
-      <div className="navbar-center">
-        <Link to="/" className="logo">Futsal Booking</Link>
+      <div className="text-xl font-bold text-indigo-600">
+        <Link to="/">🏠 Futsal Booking</Link>
       </div>
 
-      <div className="navbar-right">
+      <div className="flex items-center space-x-3">
         {user.role === 'owner' && (
           <>
-            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-            <Link to={`/ownerEdit/${user.id}`} className="nav-link special-btn">Edit Ground</Link>
+            <Link to="/dashboard" className="text-gray-700 hover:text-indigo-600 transition">Dashboard</Link>
+            <Link to={`/ownerEdit/${user.id}`} className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-500 transition">Edit Ground</Link>
           </>
         )}
-
         {user.role === 'admin' && (
-          <Link to="/admin-panal" className="nav-link special-btn">Admin Panel</Link>
+          <Link to="/admin-panal" className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-500 transition">Admin Panel</Link>
         )}
-
         {user.role === 'user' && (
-          <Link to="/register-owner" className="nav-link special-btn">Register a Ground</Link>
+          <Link to="/register-owner" className="bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-500 transition">Register a Ground</Link>
         )}
-
-        <Link to="/logout" className="logout-btn">Logout</Link>
+        <Link to="/logout" className="text-red-600 hover:text-red-400 transition">Logout</Link>
       </div>
     </nav>
+
   );
 }
 

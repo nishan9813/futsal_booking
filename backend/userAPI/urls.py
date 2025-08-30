@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import RegisterUserView, current_user, MyTokenObtainPairView, LogoutView, UserUpdateView, CustomUserAdminView
 
 
@@ -12,6 +13,9 @@ urlpatterns = [
     path('login/', MyTokenObtainPairView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
     path('userUpdate/', UserUpdateView.as_view(), name="userUpdate"),
+    path('userUpdate/', UserUpdateView.as_view(), name="userUpdate"),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
     # you can add logout here if implemented
 ]
 

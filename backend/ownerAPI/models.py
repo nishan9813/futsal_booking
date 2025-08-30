@@ -78,20 +78,6 @@ class Ground(models.Model):
     def __str__(self):
         return f"{self.name or self.ground_type} - {self.owner.futsal_name}"
 
-    # @property
-    # def available_time_slots(self):
-    #     slots = []
-    #     start_dt = datetime.combine(datetime.today(), self.opening_time)
-    #     end_dt = datetime.combine(datetime.today(), self.closing_time)
-        
-    #     while start_dt < end_dt:
-    #         next_dt = start_dt + timedelta(hours=1)
-    #         slots.append((start_dt.time(), next_dt.time()))
-    #         start_dt = next_dt
-            
-    #     return slots
-
-
 
     @property
     def available_time_slots(self):

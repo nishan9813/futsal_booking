@@ -8,12 +8,12 @@ import Register from './authenticated/register';
 import Login from './authenticated/login';
 import Logout from './authenticated/logout';
 
-import Home from './pages/home';
-import Navbar from './navbar/navbar';
+import Home from './pages/home/home';
+import Navbar from './component/navbar/navbar';
 import Grounds from './pages/grounds/ground';
 import BookingForm from './pages/booking/booking';
 import OwnerRegister from './authenticated/register_owner';
-import LocationPicker from './location/LocationPicker';
+import LocationPicker from './component/location/LocationPicker';
 import UserUpdate from './updatePages/userUpdate';
 import EditGrounds from './updatePages/groundUpdate';
 import OwnerDashboard from './pages/owner/dashboard';

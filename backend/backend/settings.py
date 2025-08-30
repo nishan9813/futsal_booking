@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "location_field",
+    "location_field.apps.DefaultConfig",
     'corsheaders',
     'rest_framework',
     'userAPI',  # Use this AppConfig here!
@@ -189,3 +189,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # This is needed for authenticate() to work
 ]
+
+
+# LOCATION_FIELD = {
+#     "provider": "openstreetmap",  # Use OpenStreetMap instead of Google
+#     "provider.openstreetmap.geocode": "//nominatim.openstreetmap.org/search?format=json&q=",
+#     "provider.openstreetmap.reverse": "//nominatim.openstreetmap.org/reverse?format=json",
+#     "map.provider": "leaflet",   # ✅ tell it to use Leaflet
+#     "map.zoom": 13,
+#     "map.center": [27.7156, 85.2829],  # optional: Kathmandu center
+# }
+

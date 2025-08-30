@@ -8,11 +8,14 @@ from .views import (
     GroundRetrieveUpdateDestroyView,
     OwnerGroundViewSet,
     GroundImageUploadView,
-    GroundImageDeleteView
+    GroundImageDeleteView,
+    GroundDistanceView
 )
 
 router = DefaultRouter()
 router.register(r'ownerground', OwnerGroundViewSet, basename='owner-grounds')
+# router.register(r'distance', GroundDistanceView, basename='distance-grounds')
+
 
 urlpatterns = [
     path('register-owner/', RegisterOwnerView.as_view(), name='register-owner'),
@@ -22,6 +25,7 @@ urlpatterns = [
     path('grounds_test/<int:pk>/', GroundRetrieveUpdateDestroyView.as_view(), name='ground-detail'),
     path('ground/<int:ground_id>/upload-image/', GroundImageUploadView.as_view(), name='ground-image-upload'),
     path('ground/<int:ground_id>/delete-image/<int:image_id>/', GroundImageDeleteView.as_view(), name='ground-image-delete'),
+    path("distance/", GroundDistanceView.as_view(), name="GroundToUser"),
 
     path('', include(router.urls)),  # Now OwnerGroundViewSet is included here
 ]

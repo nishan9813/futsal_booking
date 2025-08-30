@@ -61,19 +61,6 @@ def user_booking_history(request):
     serializer = BookingSerializer(bookings, many=True)
     return Response(serializer.data)
 
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def owner_booking_history(request):
-#     # Get all bookings for grounds owned by the current owner
-#     if hasattr(request.user, 'owner'):  # if custom owner model is linked
-#         owner = request.user.owner
-#         grounds = owner.grounds.all()  # related_name="grounds" from Owner to Ground
-#         bookings = Booking.objects.filter(ground__in=grounds).order_by('-booking_date')
-#         serializer = BookingSerializer(bookings, many=True)
-#         return Response(serializer.data)
-#     return Response({'detail': 'Not an owner'}, status=403)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def owner_booking_history(request):
