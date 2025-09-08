@@ -8,16 +8,18 @@ import Register from './authenticated/register';
 import Login from './authenticated/login';
 import Logout from './authenticated/logout';
 
-import Home from './pages/home/home';
-import Navbar from './component/navbar/navbar';
-import Grounds from './pages/grounds/ground';
-import BookingForm from './pages/booking/booking';
+import Home from './pages/home';
+import Navbar from './component/navbar';
+import Grounds from './pages/ground';
+import BookingForm from './pages/booking';
 import OwnerRegister from './authenticated/register_owner';
-import LocationPicker from './component/location/LocationPicker';
+import LocationPicker from './component/locationPicker';
 import UserUpdate from './updatePages/userUpdate';
 import EditGrounds from './updatePages/groundUpdate';
-import OwnerDashboard from './pages/owner/dashboard';
+import OwnerDashboard from './pages/dashboard';
 import AdminPanel from './admin-pages/adminPanal';
+import UserGroundBookings from './pages/allBookings';
+
 function AppContent() {
   const location = useLocation();
   
@@ -37,11 +39,12 @@ function AppContent() {
           <Route path='/book/:ownerId' element={<BookingForm />} />
           <Route path='/register-owner' element={<OwnerRegister />} />
           <Route path="/location-picker" element={<LocationPicker />} />
-          {/* <Route path="/user/:id" element={<user />} /> */}
           <Route path="/userEdit/:id" element={<UserUpdate />} />
           <Route path="/ownerEdit/:id" element={<EditGrounds />} />
           <Route path="/dashboard/" element={<OwnerDashboard />} />
           <Route path="/admin-panal/" element={<AdminPanel />} />
+          <Route path="/all-bookings/" element={<UserGroundBookings />} />
+
 
 
 

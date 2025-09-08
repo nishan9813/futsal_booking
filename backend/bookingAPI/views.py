@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -29,94 +29,101 @@ class BookingViewSet(viewsets.ModelViewSet):
             raise DRFValidationError(e.message_dict)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def ground_time_slots(request, ground_id):
-    try:
-        ground = Ground.objects.get(id=ground_id)
+class GroundTimeSlotsView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Ground.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        ground = self.get_object()  # fetches by pk (ground_id)
         return Response(ground.available_time_slots)
-    except Ground.DoesNotExist:
-        return Response({"error": "Ground not found"}, status=404)
 
 
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def booked_time_slots(request):
-    ground_id = request.query_params.get('ground')
-    date = request.query_params.get('date')
+class BookedTimeSlotsView(generics.ListAPIView):
+    permission_classes = [AllowAny]
 
-    if not ground_id or not date:
-        return Response({"error": "Both ground and date are required."}, status=400)
-
-    bookings = Booking.objects.filter(ground_id=ground_id, booking_date=date)
-    booked_slots = bookings.values_list('time_slot', flat=True)
-
-    return Response(list(booked_slots))
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_booking_history(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-booking_date')
-    serializer = BookingSerializer(bookings, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def owner_booking_history(request):
-    if hasattr(request.user, 'owner_profile'):
-        owner = request.user.owner_profile
-        grounds = owner.grounds.all()
-
-        bookings = Booking.objects.filter(ground__in=grounds)
-
+    def list(self, request, *args, **kwargs):
+        ground_id = request.query_params.get('ground')
         date = request.query_params.get('date')
-        if date:
-            bookings = bookings.filter(booking_date=date)
 
-        bookings = bookings.order_by('booking_date', 'time_slot')
+        if not ground_id or not date:
+            return Response({"error": "Both ground and date are required."}, status=400)
 
-        serializer = BookingSerializer(bookings, many=True)
-        return Response(serializer.data)
-
-    return Response({'detail': 'Not an owner'}, status=403)
+        bookings = Booking.objects.filter(ground_id=ground_id, booking_date=date)
+        booked_slots = bookings.values_list('time_slot', flat=True)
+        return Response(list(booked_slots))
 
 
-@api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
-def cancel_booking(request, booking_id):
-    if not hasattr(request.user, 'owner_profile'):
-        return Response({'detail': 'Not an owner'}, status=403)
+class UserBookingsView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
 
-    try:
-        booking = Booking.objects.get(id=booking_id, ground__owner=request.user.owner_profile)
-    except Booking.DoesNotExist:
-        return Response({'error': 'Booking not found'}, status=404)
-
-    booking.status = 'cancelled'
-    booking.save()
-    return Response({'message': 'Booking cancelled successfully'})
+    def get_queryset(self):
+        # Return only the bookings of the logged-in user
+        return Booking.objects.filter(
+            user=self.request.user
+        ).order_by("-booking_date", "-time_slot")
 
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def grounds_by_owner(request, owner_id):
-    """
-    Fetch all grounds for a given owner ID
-    """
-    try:
-        owner = OwnerProfile.objects.get(id=owner_id)
-        grounds = owner.grounds.all()  # assuming related_name='grounds' in Owner model
-        grounds_data = [
-            {
-                'id': g.id,
-                'name': g.name,
-                'ground_type': g.ground_type,
-                'available_time_slots': g.available_time_slots
-            }
-            for g in grounds
-        ]
-        return Response({'grounds': grounds_data})
-    except OwnerProfile.DoesNotExist:
-        return Response({'error': 'Owner not found'}, status=404)
+class OwnerBookingHistoryView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request.user, 'owner_profile'):
+            owner = self.request.user.owner_profile
+            grounds = owner.grounds.all()
+            qs = Booking.objects.filter(ground__in=grounds)
+
+            date = self.request.query_params.get('date')
+            if date:
+                qs = qs.filter(booking_date=date)
+
+            return qs.order_by('booking_date', 'time_slot')
+        return Booking.objects.none()  # empty queryset
+
+
+
+
+
+class CancelBookingView(generics.UpdateAPIView):
+    queryset = Booking.objects.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = "id"
+
+    def update(self, request, *args, **kwargs):
+        if not hasattr(request.user, 'owner_profile'):
+            return Response({'detail': 'Not an owner'}, status=403)
+
+        try:
+            booking = Booking.objects.get(id=kwargs['id'], ground__owner=request.user.owner_profile)
+        except Booking.DoesNotExist:
+            return Response({'error': 'Booking not found'}, status=404)
+
+        booking.status = 'cancelled'
+        booking.save()
+        return Response({'message': 'Booking cancelled successfully'})
+
+
+
+
+class GroundsByOwnerView(generics.ListAPIView):
+    permission_classes = [AllowAny]
+
+    def list(self, request, *args, **kwargs):
+        owner_id = kwargs['owner_id']
+        try:
+            owner = OwnerProfile.objects.get(id=owner_id)
+            grounds = owner.grounds.all()
+            data = [
+                {
+                    'id': g.id,
+                    'name': g.name,
+                    'ground_type': g.ground_type,
+                    'available_time_slots': g.available_time_slots
+                }
+                for g in grounds
+            ]
+            return Response({'grounds': data})
+        except OwnerProfile.DoesNotExist:
+            return Response({'error': 'Owner not found'}, status=404)

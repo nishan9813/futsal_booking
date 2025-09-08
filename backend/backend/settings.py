@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'userAPI',  # Use this AppConfig here!
     'ownerAPI',
     'bookingAPI',
+    'payment',
     'rest_framework_simplejwt.token_blacklist',
 
 ]

@@ -11,7 +11,7 @@ const EditGrounds = () => {
   useEffect(() => {
     setLoading(true);
     axiosClient
-      .get("/api/ownerground/")
+      .get("/api/owner-grounds/")
       .then((res) => setGrounds(res.data || []))
       .catch((err) => {
         console.error("Error fetching grounds:", err.response?.data || err);
@@ -36,7 +36,7 @@ const EditGrounds = () => {
   const handleUpdate = async (groundId, ground) => {
     const payload = sanitizeGroundPayload(ground);
     try {
-      const { data } = await axiosClient.patch(`/api/ownerground/${groundId}/`, payload);
+      const { data } = await axiosClient.patch(`/api/owner-grounds/${groundId}/`, payload);
       setGrounds((prev) => prev.map((g) => (g.id === groundId ? data : g)));
       alert("Ground updated successfully!");
     } catch (err) {
@@ -54,7 +54,7 @@ const EditGrounds = () => {
     }
 
     try {
-      await axiosClient.delete(`/api/ownerground/${groundId}/`);
+      await axiosClient.delete(`/api/owner-grounds/${groundId}/`);
       setGrounds((prev) => prev.filter((g) => g.id !== groundId));
       alert("Ground deleted successfully!");
     } catch (err) {
@@ -97,7 +97,7 @@ const EditGrounds = () => {
     }
 
     try {
-      const { data: created } = await axiosClient.post("/api/ownerground/", payload);
+      const { data: created } = await axiosClient.post("/api/owner-ground/", payload);
 
       const files = ground._pending_files || [];
       if (files.length > 0) {
@@ -198,106 +198,149 @@ const EditGrounds = () => {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-3xl font-semibold text-center mb-6 text-black">Manage Grounds</h2>
-      {loading && <p className="text-gray-500">Loading...</p>}
+return (
+  <div className="max-w-7xl mx-auto px-6 py-10 bg-slate-900 min-h-screen text-gray-100">
+    <h1 className="text-4xl font-extrabold text-white text-center mb-10">
+      Manage Your Grounds
+    </h1>
 
-      {grounds.length === 0 && !loading && <p className="text-gray-600 text-center mb-4">No grounds found. Add one below!</p>}
+    {loading && <p className="text-gray-400 text-center">Loading...</p>}
+    {grounds.length === 0 && !loading && (
+      <p className="text-gray-400 text-center mb-6">
+        No grounds found. Add one below!
+      </p>
+    )}
 
-      <div className="space-y-6">
-        {grounds.map((ground) => (
-          <div
-            key={ground.id}
-            className="bg-gray-50 rounded-xl p-5 shadow hover:-translate-y-1 transition-transform duration-200"
-          >
-            {/* Ground Type */}
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-black">Ground Type</label>
-              <input
-                type="text"
-                value={ground.ground_type ?? ""}
-                onChange={(e) =>
-                  setGrounds((prev) =>
-                    prev.map((g) => (g.id === ground.id ? { ...g, ground_type: e.target.value } : g))
+    <div className="space-y-10">
+      {grounds.map((ground) => (
+        <div
+          key={ground.id}
+          className="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 p-6 transition hover:shadow-xl hover:border-indigo-500"
+        >
+          {/* Ground Type */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-2 text-gray-200">
+              Ground Type
+            </label>
+            <input
+              type="text"
+              value={ground.ground_type ?? ""}
+              onChange={(e) =>
+                setGrounds((prev) =>
+                  prev.map((g) =>
+                    g.id === ground.id ? { ...g, ground_type: e.target.value } : g
                   )
-                }
-                placeholder="Enter ground type (e.g., Futsal, Basketball)"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
+                )
+              }
+              placeholder="Enter ground type (e.g., Futsal, Basketball)"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
 
-            {/* Price */}
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-black">Price (₹)</label>
-              <input
-                type="number"
-                value={ground.use_dynamic_pricing ? "" : ground.price ?? ""}
-                onChange={(e) =>
-                  setGrounds((prev) =>
-                    prev.map((g) => (g.id === ground.id ? { ...g, price: e.target.value } : g))
+          {/* Price */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-2 text-gray-200">
+              Price (₹)
+            </label>
+            <input
+              type="number"
+              value={ground.use_dynamic_pricing ? "" : ground.price ?? ""}
+              onChange={(e) =>
+                setGrounds((prev) =>
+                  prev.map((g) =>
+                    g.id === ground.id ? { ...g, price: e.target.value } : g
                   )
-                }
-                placeholder="Enter price"
-                disabled={!!ground.use_dynamic_pricing}
-                min={0}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100"
-              />
-            </div>
+                )
+              }
+              placeholder="Enter price"
+              disabled={!!ground.use_dynamic_pricing}
+              min={0}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-700"
+            />
+          </div>
 
-            {/* Dynamic Pricing */}
-            <div className="mb-4 flex items-center gap-2">
-              <input
-                id={`dynamic-pricing-${ground.id}`}
-                type="checkbox"
-                checked={!!ground.use_dynamic_pricing}
-                onChange={(e) =>
-                  setGrounds((prev) =>
-                    prev.map((g) => (g.id === ground.id ? { ...g, use_dynamic_pricing: e.target.checked } : g))
+          {/* Dynamic Pricing */}
+          <div className="mb-6 flex items-center gap-3">
+            <input
+              id={`dynamic-pricing-${ground.id}`}
+              type="checkbox"
+              checked={!!ground.use_dynamic_pricing}
+              onChange={(e) =>
+                setGrounds((prev) =>
+                  prev.map((g) =>
+                    g.id === ground.id
+                      ? { ...g, use_dynamic_pricing: e.target.checked }
+                      : g
                   )
-                }
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor={`dynamic-pricing-${ground.id}`} className="font-medium text-black">
-                Use Dynamic Pricing
+                )
+              }
+              className="h-5 w-5 text-indigo-500 rounded focus:ring-indigo-500"
+            />
+            <label
+              htmlFor={`dynamic-pricing-${ground.id}`}
+              className="text-gray-200 font-medium"
+            >
+              Enable Dynamic Pricing
+            </label>
+          </div>
+
+          {/* Opening & Closing Time */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block font-semibold mb-2 text-gray-200">
+                Opening Time
               </label>
-            </div>
-
-            {/* Opening & Closing Time */}
-            <div className="mb-4">
-              <label className="block font-medium mb-1 text-black">Opening Time</label>
               <input
                 type="time"
                 value={ground.opening_time ?? "05:00"}
                 onChange={(e) =>
                   setGrounds((prev) =>
-                    prev.map((g) => (g.id === ground.id ? { ...g, opening_time: e.target.value } : g))
+                    prev.map((g) =>
+                      g.id === ground.id ? { ...g, opening_time: e.target.value } : g
+                    )
                   )
                 }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500"
               />
-              <label className="block font-medium mb-1 mt-2 text-black">Closing Time</label>
+            </div>
+            <div>
+              <label className="block font-semibold mb-2 text-gray-200">
+                Closing Time
+              </label>
               <input
                 type="time"
                 value={ground.closing_time ?? "22:00"}
                 onChange={(e) =>
                   setGrounds((prev) =>
-                    prev.map((g) => (g.id === ground.id ? { ...g, closing_time: e.target.value } : g))
+                    prev.map((g) =>
+                      g.id === ground.id ? { ...g, closing_time: e.target.value } : g
+                    )
                   )
                 }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500"
               />
             </div>
+          </div>
 
-            {/* Images Section */}
-            <div className="flex flex-wrap gap-3 mb-4">
+          {/* Images */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-3 text-gray-200">
+              Ground Images
+            </label>
+            <div className="flex flex-wrap gap-4">
               {(ground.ground_images || []).map((img) => (
-                <div key={img.id} className="relative w-24 h-24 rounded-md overflow-hidden border border-gray-300">
-                  <img src={img.image} alt="Ground" className="w-full h-full object-cover" draggable={false} />
+                <div
+                  key={img.id}
+                  className="relative w-28 h-28 rounded-lg overflow-hidden border border-slate-600 shadow-sm"
+                >
+                  <img
+                    src={img.image}
+                    alt="Ground"
+                    className="w-full h-full object-cover"
+                  />
                   <button
                     onClick={() => handleImageDelete(ground.id, img.id)}
-                    title="Remove Image"
-                    className="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-lg"
+                    className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex items-center justify-center"
                   >
                     ×
                   </button>
@@ -306,31 +349,38 @@ const EditGrounds = () => {
 
               {ground.id.toString().startsWith("temp-") &&
                 (ground._pending_files || []).map((file, idx) => (
-                  <div key={`pending-${idx}`} className="relative w-24 h-24 rounded-md overflow-hidden border border-gray-300">
+                  <div
+                    key={`pending-${idx}`}
+                    className="relative w-28 h-28 rounded-lg overflow-hidden border border-slate-600 shadow-sm"
+                  >
                     <img
                       src={URL.createObjectURL(file)}
                       alt="Pending"
                       className="w-full h-full object-cover"
-                      draggable={false}
                     />
                     <button
                       onClick={() =>
                         setGrounds((prev) =>
                           prev.map((g) =>
                             g.id === ground.id
-                              ? { ...g, _pending_files: g._pending_files.filter((_, i) => i !== idx) }
+                              ? {
+                                  ...g,
+                                  _pending_files: g._pending_files.filter(
+                                    (_, i) => i !== idx
+                                  ),
+                                }
                               : g
                           )
                         )
                       }
-                      title="Remove Image"
-                      className="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-lg"
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-full flex items-center justify-center"
                     >
                       ×
                     </button>
                   </div>
                 ))}
 
+              {/* Upload Button */}
               {(() => {
                 const existingCount = ground.ground_images?.length || 0;
                 const pendingCount = ground.id.toString().startsWith("temp-")
@@ -338,7 +388,7 @@ const EditGrounds = () => {
                   : 0;
                 const total = existingCount + pendingCount;
                 return total < MAX_IMAGES ? (
-                  <label className="w-24 h-24 border-2 border-dashed border-blue-400 rounded-md flex items-center justify-center cursor-pointer text-blue-500 text-2xl">
+                  <label className="w-28 h-28 border-2 border-dashed border-indigo-400 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-700 text-indigo-400 text-3xl">
                     <input
                       type="file"
                       accept="image/*"
@@ -351,55 +401,58 @@ const EditGrounds = () => {
                 ) : null;
               })()}
             </div>
-
-            {/* Buttons */}
-            <div className="flex gap-3">
-              {ground.isNew ? (
-                <>
-                  <button
-                    onClick={() => handleSaveNewGround(ground)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                  >
-                    Add Ground
-                  </button>
-                  <button
-                    onClick={() => setGrounds((prev) => prev.filter((g) => g.id !== ground.id))}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-                  >
-                    Remove
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => handleUpdate(ground.id, ground)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    onClick={() => handleDeleteGround(ground.id)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-                  >
-                    Remove Ground
-                  </button>
-                </>
-              )}
-            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="mt-6 text-center">
-        <button
-          onClick={handleAddNewGroundCard}
-          className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          Add New Ground
-        </button>
-      </div>
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            {ground.isNew ? (
+              <>
+                <button
+                  onClick={() => handleSaveNewGround(ground)}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow"
+                >
+                  Add Ground
+                </button>
+                <button
+                  onClick={() =>
+                    setGrounds((prev) => prev.filter((g) => g.id !== ground.id))
+                  }
+                  className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow"
+                >
+                  Remove
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleUpdate(ground.id, ground)}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow"
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => handleDeleteGround(ground.id)}
+                  className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow"
+                >
+                  Remove Ground
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
-  );
+
+    <div className="mt-10 text-center">
+      <button
+        onClick={handleAddNewGroundCard}
+        className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg"
+      >
+        + Add New Ground
+      </button>
+    </div>
+  </div>
+);
 };
 
 export default EditGrounds;

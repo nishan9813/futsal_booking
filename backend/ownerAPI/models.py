@@ -73,7 +73,7 @@ class Ground(models.Model):
     opening_time = models.TimeField(_("Opening Time"), default=time(5, 0))
     closing_time = models.TimeField(_("Closing Time"), default=time(22, 0))
     price = models.IntegerField(_("Base Price"), default=0)
-    use_dynamic_pricing = models.BooleanField(_("Use Dynamic Pricing"), default=False)
+    use_dynamic_pricing = models.BooleanField(("Use Dynamic Pricing"), default=False)
 
     def __str__(self):
         return f"{self.name or self.ground_type} - {self.owner.futsal_name}"
@@ -93,6 +93,11 @@ class Ground(models.Model):
             start_dt = next_dt
 
         return slots
+    
+
+    # def get_dynamic_pricing(ground, slot_time):
+    #     if ground.use_dynamic_pricing:
+    #         from
 
 
 class GroundImage(models.Model):
@@ -109,26 +114,3 @@ class GroundImage(models.Model):
             raise ValueError(_("Maximum 6 images allowed per ground."))
         super().save(*args, **kwargs)
 
-class GroundPricing(models.Model):
-    ground = models.ForeignKey(
-        Ground, 
-        on_delete=models.CASCADE, 
-        related_name='pricing_rules'
-    )
-    day_of_week = models.IntegerField(_("Day of Week"), choices=DAYS_OF_WEEK)
-    start_time = models.TimeField(_("Start Time"))
-    end_time = models.TimeField(_("End Time"))
-    price_per_hour = models.PositiveIntegerField(_("Price per Hour"))
-
-    class Meta:
-        unique_together = ('ground', 'day_of_week', 'start_time', 'end_time')
-        ordering = ['ground', 'day_of_week', 'start_time']
-        verbose_name = _("Ground Pricing")
-        verbose_name_plural = _("Ground Pricing Rules")
-
-    def __str__(self):
-        return f"{self.ground} | {self.get_day_of_week_display()} {self.start_time}-{self.end_time} @ ₹{self.price_per_hour}"
-
-    def clean(self):
-        if self.start_time >= self.end_time:
-            raise ValueError(_("Start time must be before end time."))

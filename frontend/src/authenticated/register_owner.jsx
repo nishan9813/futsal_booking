@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import axiosClient from "./axiosCredint";
-import LocationPicker from "../component/location/LocationPicker";
+import LocationPicker from "../component/locationPicker";
 import { useNavigate } from "react-router-dom";
 
 const ImageSelector = ({ images, setImages }) => {
