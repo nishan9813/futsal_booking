@@ -23,7 +23,7 @@ const Login = () => {
         password: form.password,
       };
 
-      const response = await axiosClient.post("/api/token/", loginData);
+      const response = await axiosClient.post("/api/login/", loginData);
 
       if (response.status === 200) {
         const { access, refresh, username, email, role } = response.data;

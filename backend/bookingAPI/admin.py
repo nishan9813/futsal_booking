@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Booking
+from .models import Booking, DemoPaymentAccount
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
@@ -8,3 +8,4 @@ class BookingAdmin(admin.ModelAdmin):
     search_fields = ('ground__futsal_name', 'user__username')
     readonly_fields = ('created_at',)
     ordering = ('-booking_date', 'time_slot')  # replaced start_time/end_time with time_slot
+admin.site.register(DemoPaymentAccount)

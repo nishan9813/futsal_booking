@@ -11,18 +11,21 @@ import Logout from './authenticated/logout';
 import Home from './pages/home';
 import Navbar from './component/navbar';
 import Grounds from './pages/ground';
-import BookingForm from './pages/booking';
+import BookingForm from './pages/bookings/BookingForm';
 import OwnerRegister from './authenticated/register_owner';
 import LocationPicker from './component/locationPicker';
-import UserUpdate from './updatePages/userUpdate';
-import EditGrounds from './updatePages/groundUpdate';
-import OwnerDashboard from './pages/dashboard';
-import AdminPanel from './admin-pages/adminPanal';
-import UserGroundBookings from './pages/allBookings';
+import UserUpdate from './pages/user/userUpdate';
+// import EditGrounds from './pages/owner/groundUpdate';
+import OwnerDashboard from './pages/owner/dashboard';
+import AdminPanel from './pages/admin/adminPanal';
+import UserGroundBookings from './pages/user/allBookings';
+import EditGrounds from './pages/owner/ground edit/EditGrounds';
+import PaymentModal from './pages/bookings/payment';
+import AdminDashboard from './pages/admin/adminDashboard';
 
 function AppContent() {
   const location = useLocation();
-  
+
   // Hide navbar on register, login, and register-owner pages
   const hideNavbar = location.pathname === '/register' || location.pathname === '/login' || location.pathname === '/register-owner';
 
@@ -39,11 +42,15 @@ function AppContent() {
           <Route path='/book/:ownerId' element={<BookingForm />} />
           <Route path='/register-owner' element={<OwnerRegister />} />
           <Route path="/location-picker" element={<LocationPicker />} />
-          <Route path="/userEdit/:id" element={<UserUpdate />} />
-          <Route path="/ownerEdit/:id" element={<EditGrounds />} />
+          <Route path="/userEdit/" element={<UserUpdate />} />
+          <Route path="/ownerEdit/" element={<EditGrounds />} />
           <Route path="/dashboard/" element={<OwnerDashboard />} />
-          <Route path="/admin-panal/" element={<AdminPanel />} />
+          <Route path="/admin-panel/" element={<AdminPanel />} />
           <Route path="/all-bookings/" element={<UserGroundBookings />} />
+          {/* <Route path="/payment/:bookingId/" element={<PaymentPage />} /> */}
+          <Route path="/admin-Dashboard/" element={<AdminDashboard/>} />
+
+
 
 
 

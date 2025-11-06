@@ -6,6 +6,7 @@ from rest_framework import status
 
 from ..models import Ground
 from ..utils.sorting import Price_sorting
+from ..serializers import GroundDistanceSerializer
 
 ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjFmY2EwZTY4ZWYwZjQ0MjI4ODkwZjg3MWYzNWQxMDljIiwiaCI6Im11cm11cjY0In0='
 class GroundDistanceView(APIView):
@@ -14,9 +15,8 @@ class GroundDistanceView(APIView):
     def post(self, request):
         user_lat = request.data.get('latitude')
         user_lng = request.data.get('longitude')
-        ground_id = request.data.get('ground_id')  # optional, can fetch one specific ground
+        ground_id = request.data.get('ground_id')  # optional
 
-        # Basic validation
         if user_lat is None or user_lng is None:
             return Response({"error": "latitude and longitude are required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -28,18 +28,14 @@ class GroundDistanceView(APIView):
 
         client = openrouteservice.Client(key=ORS_API_KEY)
 
-        # Filter grounds if a specific one is requested
+        grounds = Ground.objects.select_related("owner").all()
         if ground_id:
-            grounds = Ground.objects.select_related("owner").filter(id=ground_id)
-        else:
-            grounds = Ground.objects.select_related("owner").all()
+            grounds = grounds.filter(id=ground_id)
 
-        ground_list = []
-
+        response_data = []
         for ground in grounds:
             if not ground.owner.location:
                 continue
-
             try:
                 owner_lat, owner_lng = map(float, ground.owner.location.split(','))
                 routes = client.directions(
@@ -51,21 +47,19 @@ class GroundDistanceView(APIView):
             except Exception:
                 distance_meters = None
 
-            ground_list.append({
+            response_data.append({
                 'id': ground.id,
-                'name': ground.name,
-                'futsal_name': ground.owner.futsal_name,
-                'location': ground.owner.location,
                 'distance_meters': distance_meters
             })
 
         # Sort by distance if distances exist
-        ground_list = sorted(
-            [g for g in ground_list if g['distance_meters'] is not None],
+        response_data = sorted(
+            [g for g in response_data if g['distance_meters'] is not None],
             key=lambda x: x['distance_meters']
         )
 
-        return Response(ground_list, status=status.HTTP_200_OK)
+        serializer = GroundDistanceSerializer(response_data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 

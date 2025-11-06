@@ -1,26 +1,31 @@
+// frontend/src/services/distanceService.jsx
 import axiosClient from "../authenticated/axiosCredint";
 
 /**
- * Fetch distances from user location to grounds
- * @param {number|null} groundId - optional, fetch distance for a specific ground
- * @param {number} userLat - user's latitude
- * @param {number} userLng - user's longitude
- * @returns {Promise<Array|number|null>} - returns an array of grounds with distances or distance of single ground
+ * Fetch distances for all grounds from backend
+ * @param {number} userLat - User's latitude
+ * @param {number} userLng - User's longitude
+ * @returns {Promise<Object[]>} - Array of grounds with {id, distance_meters}
  */
-export const fetchDistance = async (groundId = null, userLat, userLng) => {
+export const fetchAllDistances = async (userLat, userLng) => {
   try {
     const payload = { latitude: userLat, longitude: userLng };
-    if (groundId) payload.ground_id = groundId;
-
     const response = await axiosClient.post("/api/distance/", payload);
-
-    if (groundId) {
-      return response.data.length > 0 ? response.data[0].distance_meters : null;
-    }
-
-    return response.data; // array of grounds with distances
+    // response.data should be an array of {id, distance_meters}
+    return response.data || [];
   } catch (error) {
     console.error("Error fetching distances:", error);
-    return null;
+    return [];
   }
+};
+
+/**
+ * Helper: get distance for a specific ground
+ * @param {number} groundId 
+ * @param {Object[]} allDistances 
+ * @returns {number} distance in meters
+ */
+export const getDistanceForGround = (groundId, allDistances) => {
+  const groundData = allDistances.find((g) => g.id === groundId);
+  return groundData?.distance_meters || 0;
 };

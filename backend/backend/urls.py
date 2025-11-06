@@ -14,9 +14,6 @@ urlpatterns = [
     path('api/', include('userAPI.urls')),
     path('api/', include('ownerAPI.urls')),
     path('api/', include('bookingAPI.urls')),
-    path('payment/', include('payment.urls')),
-
-
     # JWT auth endpoints
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

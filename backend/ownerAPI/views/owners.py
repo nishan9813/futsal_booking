@@ -5,11 +5,13 @@ from rest_framework.response import Response
 from ..models import OwnerProfile
 from ..serializers import OwnerProfileSerializer
 from ..utils.helper import get_owner_profile
+from rest_framework.decorators import api_view, permission_classes
+from userAPI.permessions import IsAdmin
 
 class RegisterOwnerView(generics.CreateAPIView):
     serializer_class = OwnerProfileSerializer
     permission_classes = [IsAuthenticated]
-    parser_classes = ['multipart/form-data', 'application/json']
+    # parser_classes = ['multipart/form-data', 'application/json', 'JSONParser']
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -49,3 +51,4 @@ class RegisterOwnerView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
         return super().create(request, *args, **kwargs)
+
